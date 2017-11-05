@@ -19,7 +19,6 @@ public class Element {
     }
 
     public void setIdOfIndex(int index, int id){
-        
         IDArray[index] = id;
     }
 }
