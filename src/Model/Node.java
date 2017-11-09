@@ -5,17 +5,20 @@ public class Node {
     private double y;
     private double result;
     private boolean status;
+    private final int uid;
 
     public Node(double x, double y, boolean status) {
         this.x = x;
         this.y = y;
         this.status = status;
+        uid = 0;
     }
 
-    public Node(double x, double y) {
+    public Node(double x, double y, final int uid, boolean status) {
         this.x = x;
         this.y = y;
-        this.status = false;
+        this.uid = uid;
+        this.status = status;
     }
 
     public boolean isStatus() {
@@ -48,5 +51,9 @@ public class Node {
 
     public void setResult(double result) {
         this.result = result;
+    }
+
+    public int getUid() {
+        return uid;
     }
 }

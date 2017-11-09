@@ -21,4 +21,9 @@ public class Element {
     public void setIdOfIndex(int index, int id){
         IDArray[index] = id;
     }
+
+    public Element withArray(int[] IDArray){
+        this.IDArray = IDArray;
+        return this;
+    }
 }
