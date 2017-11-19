@@ -1,4 +1,4 @@
-package Model.Integral;
+package Model.Maths;
 
 public class Equation {
     public static double function(double x, double y){

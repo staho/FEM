@@ -2,8 +2,8 @@ package Controller;
 
 import Model.GlobalData;
 import Model.Grid;
-import Model.Integral.Equation;
-import Model.Integral.IntegralPoints;
+import Model.Maths.Equation;
+import Model.Maths.IntegralPoints;
 
 public class Main {
 
@@ -22,7 +22,7 @@ public class Main {
 
         double [][] tabofPoints = points.getTab2p();
 
-        System.out.println("Integral 2D with 2 points:");
+        System.out.println("Maths 2D with 2 points:");
         for (int i = 0; i < 2; i++){
             for (int j = 0; j < 2; j++){
                 equationSum+= Equation.function(tabofPoints[i][0], tabofPoints[j][0]) * tabofPoints[i][1] * tabofPoints[j][1];
@@ -32,7 +32,7 @@ public class Main {
 
         equationSum = 0;
         tabofPoints = points.getTab3p();
-        System.out.println("Integral 2D with 3 points:");
+        System.out.println("Maths 2D with 3 points:");
         for (int i = 0; i < 3; i++){
             for (int j = 0; j < 3; j++){
                 equationSum+= Equation.function(tabofPoints[i][0], tabofPoints[j][0]) * tabofPoints[i][1] * tabofPoints[j][1];

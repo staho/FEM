@@ -1,8 +1,4 @@
-package Model.Integral;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+package Model.Maths;
 
 public class IntegralPoints {
     private int dimmension;
