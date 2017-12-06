@@ -26,37 +26,37 @@ public class ShapeFunctions {
 
     //Eta derr section
     //********************************************************************
-    public static double shapeFunctionDerivative1Eta(double psi, double eta){
+    public static double shapeFunctionDerivative1Eta(double psi){
         return -0.25 * (1 - psi);
     }
 
-    public static double shapeFunctionDerivative2Eta(double psi, double eta) {
-        return shapeFunctionDerivative1Eta(psi, eta);
+    public static double shapeFunctionDerivative2Eta(double psi) {
+        return shapeFunctionDerivative1Eta(psi);
     }
 
-    public static double shapeFunctionDerivative3Eta(double psi, double eta){
+    public static double shapeFunctionDerivative3Eta(double psi){
         return 0.25 * (1 + psi);
     }
 
-    public static double shapeFunctionDerivative4Eta(double psi, double eta){
-        return -1. * shapeFunctionDerivative3Eta(psi, eta);
+    public static double shapeFunctionDerivative4Eta(double psi){
+        return -1. * shapeFunctionDerivative3Eta(psi);
     }
 
     //Psi derr section
     //********************************************************************
-    public static double shapeFunctionDerivative1Psi(double psi, double eta){
+    public static double shapeFunctionDerivative1Psi(double eta){
         return -0.25 * (1 - eta);
     }
 
-    public static double shapeFunctionDerivative2Psi(double psi, double eta) {
-        return shapeFunctionDerivative1Psi(psi, eta);
+    public static double shapeFunctionDerivative2Psi( double eta) {
+        return shapeFunctionDerivative1Psi(eta);
     }
 
-    public static double shapeFunctionDerivative3Psi(double psi, double eta){
+    public static double shapeFunctionDerivative3Psi(double eta){
         return 0.25 * (1 + eta);
     }
 
-    public static double shapeFunctionDerivative4Psi(double psi, double eta){
-        return -1. * shapeFunctionDerivative3Psi(psi, eta);
+    public static double shapeFunctionDerivative4Psi(double eta){
+        return -1. * shapeFunctionDerivative3Psi(eta);
     }
 }

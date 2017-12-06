@@ -1,16 +1,13 @@
 package Model;
 
 import Jama.Matrix;
+import Model.Maths.IntegralPoints;
 import com.google.gson.Gson;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.File;
+
 import java.io.FileReader;
 
-@XmlRootElement(name = "globaldata")
+
 public class GlobalData {
     private double H;   //H is the height of field
     private double B;   //B is the width of field
@@ -22,24 +19,59 @@ public class GlobalData {
     private int ne;     //number of elements
 
     private Matrix shapeFunctionsDerEta;
-    private Matrix shapeFunctionsDerKsi;
+    private Matrix shapeFunctionsDerPsi;
 
 
-    public GlobalData() { //TODO: constructor should read data from .xml file
+    public GlobalData() {
 
     }
 
-    public GlobalData readConfig(){
+    public GlobalData(boolean x){
+        GlobalData tempData = this.readConfig();
+        if(tempData != null) {
+            this.B = tempData.getB();
+            this.H = tempData.getH();
+            this.nH = tempData.getnH();
+            this.nB = tempData.getnB();
+
+
+            this.setNh(this.getnH() * this.getnB());
+            this.setNe((this.getnB() - 1) * (this.getnH() - 1));
+            this.setDx(this.getB() / (this.getnB() - 1));
+            this.setDy(this.getH() / (this.getnH() - 1));
+
+            generateDerMatrixes();
+        }
+    }
+
+
+    private void generateDerMatrixes(){
+        IntegralPoints points = new IntegralPoints();
+        double [][] point = points.getIntegralPoints();
+
+        shapeFunctionsDerEta = new Matrix(4, 4);
+            for(int i = 0; i < 4; i++){
+                shapeFunctionsDerEta.set(i,0, ShapeFunctions.shapeFunctionDerivative1Eta(point[i][1]));
+                shapeFunctionsDerEta.set(i,1, ShapeFunctions.shapeFunctionDerivative2Eta(point[i][1]));
+                shapeFunctionsDerEta.set(i,2, ShapeFunctions.shapeFunctionDerivative3Eta(point[i][1]));
+                shapeFunctionsDerEta.set(i,3, ShapeFunctions.shapeFunctionDerivative4Eta(point[i][1]));
+            }
+
+        shapeFunctionsDerPsi = new Matrix(4, 4);
+            for(int i = 0; i < 4; i++){
+                shapeFunctionsDerPsi.set(i,0, ShapeFunctions.shapeFunctionDerivative1Psi(point[i][1]));
+                shapeFunctionsDerPsi.set(i,1, ShapeFunctions.shapeFunctionDerivative2Psi(point[i][1]));
+                shapeFunctionsDerPsi.set(i,2, ShapeFunctions.shapeFunctionDerivative3Psi(point[i][1]));
+                shapeFunctionsDerPsi.set(i,3, ShapeFunctions.shapeFunctionDerivative4Psi(point[i][1]));
+            }
+
+
+    }
+
+    private GlobalData readConfig(){
         try {
             Gson gson = new Gson();
             GlobalData tempData = gson.fromJson(new FileReader(System.getProperty("user.dir") + "/data/data.txt"), GlobalData.class);
-
-
-            tempData.setNh( tempData.getnH() * tempData.getnB() );
-            tempData.setNe( ( tempData.getnB() - 1 ) * ( tempData.getnH() - 1 ) );
-            tempData.setDx(tempData.getB()/( tempData.getnB() - 1));
-            tempData.setDy(tempData.getH()/( tempData.getnH() - 1));
-
 
             return tempData;
         } catch (Exception e){
@@ -49,13 +81,18 @@ public class GlobalData {
         return null;
     }
 
+    public Matrix getShapeFunctionsDerEta() {
+        return shapeFunctionsDerEta;
+    }
 
+    public Matrix getShapeFunctionsDerPsi() {
+        return shapeFunctionsDerPsi;
+    }
 
     public double getH() {
         return H;
     }
 
-    @XmlElement(name = "H")
     public void setH(double h) {
         H = h;
     }
@@ -64,7 +101,6 @@ public class GlobalData {
         return B;
     }
 
-    @XmlElement(name = "B")
     public void setB(double b) {
         B = b;
     }
@@ -73,7 +109,6 @@ public class GlobalData {
         return nH;
     }
 
-    @XmlElement(name = "nH")
     public void setnH(int nH) {
         this.nH = nH;
     }
@@ -82,7 +117,6 @@ public class GlobalData {
         return nB;
     }
 
-    @XmlElement(name = "nB")
     public void setnB(int nB) {
         this.nB = nB;
     }

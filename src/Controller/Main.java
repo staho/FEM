@@ -8,7 +8,7 @@ import Model.Maths.IntegralPoints;
 public class Main {
 
     public static void main(String[] args) {
-        GlobalData x = new GlobalData().readConfig();
+        GlobalData x = new GlobalData(true);
         System.out.println("H:" + x.getH());
         System.out.println("B:" + x.getB());
 
