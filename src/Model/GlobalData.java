@@ -1,11 +1,14 @@
 package Model;
 
+import Jama.Matrix;
+import com.google.gson.Gson;
+
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
+import java.io.FileReader;
 
 @XmlRootElement(name = "globaldata")
 public class GlobalData {
@@ -18,16 +21,18 @@ public class GlobalData {
     private int nh;     //number of nodes
     private int ne;     //number of elements
 
+    private Matrix shapeFunctionsDerEta;
+    private Matrix shapeFunctionsDerKsi;
+
+
     public GlobalData() { //TODO: constructor should read data from .xml file
 
     }
 
     public GlobalData readConfig(){
         try {
-            JAXBContext context = JAXBContext.newInstance(GlobalData.class);
-
-            Unmarshaller m = context.createUnmarshaller();
-            GlobalData tempData = (GlobalData) m.unmarshal(new File(System.getProperty("user.dir") + "/data/data.xml"));
+            Gson gson = new Gson();
+            GlobalData tempData = gson.fromJson(new FileReader(System.getProperty("user.dir") + "/data/data.txt"), GlobalData.class);
 
 
             tempData.setNh( tempData.getnH() * tempData.getnB() );
@@ -43,6 +48,8 @@ public class GlobalData {
 
         return null;
     }
+
+
 
     public double getH() {
         return H;

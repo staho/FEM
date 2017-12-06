@@ -1,5 +1,7 @@
 package Model.Maths;
 
+import java.util.Vector;
+
 public class IntegralPoints {
     private int dimmension;
     private int noOfPoints;
@@ -34,4 +36,5 @@ public class IntegralPoints {
     public double[][] getTab3p() {
         return tab3p;
     }
+
 }
