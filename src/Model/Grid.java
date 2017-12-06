@@ -42,7 +42,7 @@ public class Grid {
 
             for (int i = 0; i < globalData.getnB(); ++i)
                 for (int j = 0; j < globalData.getnH(); ++j)
-                    ND.add(new Node(i * dx, j * dy, i * globalData.getnB() + j, false));
+                    ND.add(new Node(i * dx, j * dy, i * globalData.getnH() + j, false));
 
         }
         //generate element list
