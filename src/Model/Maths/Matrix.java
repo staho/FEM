@@ -59,12 +59,13 @@ public class Matrix {
 
     public Matrix multiply(Matrix matrixA, Matrix matrixB){
         if(matrixA.getWidth() == matrixB.getHeight()){
+
             Matrix matrixC = new Matrix(matrixA.getHeight(), matrixB.getWidth());
-            int i, j, k;
             double sum = 0;
-            for(i = 0; i < matrixA.getHeight(); i++){
-                for(j = 0; j < matrixB.getWidth(); j++){
-                    for(k = 0; k < matrixA.getWidth(); k++)  sum += matrixA.getElement(i, j) * matrixB.getElement(j, k);
+
+            for(int i = 0; i < matrixA.getHeight(); i++){
+                for(int j = 0; j < matrixB.getWidth(); j++){
+                    for(int k = 0; k < matrixA.getWidth(); k++)  sum += matrixA.getElement(i, j) * matrixB.getElement(j, k);
 
                     matrixC.setElementOfIndex(i, j, sum);
                     sum = 0;
@@ -74,6 +75,27 @@ public class Matrix {
         }
         else{
             throw new ArithmeticException("Cannot multiply those arrays");
+        }
+    }
+
+    public void multiplyByScalar(double x){
+        for(Vector<Double> row: matrix){
+            for (Double element : row){
+                element *= x;
+            }
+        }
+    }
+    public Matrix add(Matrix matrixA, Matrix matrixB){
+        if((matrixA.getWidth() == matrixB.getWidth()) && (matrixA.getHeight() == matrixB.getHeight())){
+            Matrix sumMatrix = new Matrix(matrixA.getHeight(), matrixB.getWidth());
+            for(int i = 0; i < matrixA.getHeight(); i++){
+                for(int j = 0; j < matrixA.getWidth(); j++){
+                    sumMatrix.setElementOfIndex(i,j, matrixA.getElement(i,j) + matrixB.getElement(i,j));
+                }
+            }
+            return sumMatrix;
+        } else {
+            throw new ArithmeticException("Matrixes have different dimensions");
         }
     }
 

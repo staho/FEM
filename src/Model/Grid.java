@@ -50,7 +50,9 @@ public class Grid {
         {
             for (int i = 0 ; i < globalData.getnB() - 1; ++i){
                 for (int j = 0; j < globalData.getnH() - 1; ++j){
+
                     int [] tab = new int[4];
+
                     tab[0] = j + i*(globalData.getnH());
                     tab[3] = tab[0] + 1;
 
