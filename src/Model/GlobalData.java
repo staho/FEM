@@ -40,12 +40,12 @@ public class GlobalData {
             this.setDx(this.getB() / (this.getnB() - 1));
             this.setDy(this.getH() / (this.getnH() - 1));
 
-            generateDerMatrixes();
+            generateDerMatrices();
         }
     }
 
 
-    private void generateDerMatrixes(){
+    private void generateDerMatrices(){
         IntegralPoints points = new IntegralPoints();
         double [][] point = points.getIntegralPoints();
 
@@ -65,14 +65,12 @@ public class GlobalData {
                 shapeFunctionsDerPsi.set(i,3, ShapeFunctions.shapeFunctionDerivative4Psi(point[i][1]));
             }
 
-
     }
 
     private GlobalData readConfig(){
         try {
             Gson gson = new Gson();
             GlobalData tempData = gson.fromJson(new FileReader(System.getProperty("user.dir") + "/data/data.txt"), GlobalData.class);
-
             return tempData;
         } catch (Exception e){
             e.printStackTrace();

@@ -44,7 +44,6 @@ public class IntegralPoints {
                 {0.577, -0.577},
                 {-0.577, -0.577}
         };
-        System.out.println(points[3][1]);
         return points;
     }
 

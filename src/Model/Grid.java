@@ -44,7 +44,6 @@ public class Grid {
                 for (int j = 0; j < globalData.getnH(); ++j)
                     ND.add(new Node(i * dx, j * dy, i * globalData.getnB() + j, false));
 
-
         }
         //generate element list
         {
@@ -53,14 +52,21 @@ public class Grid {
 
                     int [] tab = new int[4];
 
-                    tab[0] = j + i*(globalData.getnH());
+                    tab[0] = j + i * globalData.getnH();
                     tab[3] = tab[0] + 1;
-
-                    tab[1] = j + (i+1)*globalData.getnH();
+                    tab[1] = j + (i+1) * globalData.getnH();
                     tab[2] = tab[1] + 1;
 
+                    Node [] nodes = new Node[4];
+                    int z = 0;
+                    for(int nodeId: tab){
+                        nodes[z] = ND.get(nodeId);
+                        z++;
+                    }
 
-                    EL.add(new Element().withArray(tab));
+
+
+                    EL.add(new Element().withArray(tab).withNodes(nodes));
                 }
             }
         }
