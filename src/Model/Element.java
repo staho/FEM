@@ -55,6 +55,11 @@ public class Element {
 
             jacobianDets[i] = jacobian[i].det();
             jacobian[i].transpose();
+            jacobian[i].set(0,1, jacobian[i].get(0,1)*(-1.0));
+            jacobian[i].set(1,0, jacobian[i].get(1,0)*(-1.0));
+
+            jacobian[i] = jacobian[i].times(1.0/(jacobianDets[i]));
+
         }
     }
 

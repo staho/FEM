@@ -50,10 +50,10 @@ public class IntegralPoints {
     public static Point[] getIntegralPoints(){
         Point [] points = new Point[4];
 
-        points[0].setX(0.577); points[0].setY(0.577);
-        points[1].setX(-0.577); points[1].setY(0.577);
-        points[2].setX(0.577); points[2].setY(-0.577);
-        points[3].setX(-0.577); points[3].setY(-0.577);
+        points[0] = new Point(0.577, 0.577);
+        points[1] = new Point(-0.577, 0.577);
+        points[2] = new Point(0.577, -0.577);
+        points[3] = new Point(-0.577, -0.577);
 
         return points;
 

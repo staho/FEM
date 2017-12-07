@@ -13,7 +13,9 @@ public class Point {
         this.xW = xW;
         this.yW = yW;
     }
-    public Point(){
+    public Point(double x, double y){
+        this.x = x;
+        this.y = y;
         this.xW = 1.;
         this.yW = 1.;
     }
