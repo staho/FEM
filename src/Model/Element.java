@@ -13,6 +13,7 @@ public class Element {
     private int elementID = 0;
 
     private Matrix [] jacobian;
+    private double [] jacobianDets;
     private Matrix shapeFunctionsDerEta;
     private Matrix shapeFunctionsDerPsi;
 
@@ -24,6 +25,7 @@ public class Element {
         this.shapeFunctionsDerPsi = shapeFunctionsDerPsi;
 
         jacobian = new Matrix[4];
+        jacobianDets = new double[4];
 
     }
 
@@ -51,9 +53,9 @@ public class Element {
             jacobian[i].set(1,0, dxDpsi);
             jacobian[i].set(0,1, dyDpsi);
 
+            jacobianDets[i] = jacobian[i].det();
+            jacobian[i].transpose();
         }
-
-
     }
 
     public int[] getIDArray() {
