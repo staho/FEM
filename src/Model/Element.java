@@ -48,11 +48,11 @@ public class Element {
 
             jacobian[i].set(0,0, dxDeta);
             jacobian[i].set(0,1, dyDeta);
-            jacobian[i].set(1,0, dxDeta);
-            jacobian[i].set(0,1, dyDeta);
+            jacobian[i].set(1,0, dxDpsi);
+            jacobian[i].set(0,1, dyDpsi);
 
         }
-        
+
 
     }
 
