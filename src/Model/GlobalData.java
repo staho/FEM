@@ -2,6 +2,7 @@ package Model;
 
 import Jama.Matrix;
 import Model.Maths.IntegralPoints;
+import Model.Maths.Point;
 import com.google.gson.Gson;
 
 
@@ -46,23 +47,22 @@ public class GlobalData {
 
 
     private void generateDerMatrices(){
-        IntegralPoints points = new IntegralPoints();
-        double [][] point = points.getIntegralPoints();
+        Point[] points = IntegralPoints.getIntegralPoints();
 
         shapeFunctionsDerEta = new Matrix(4, 4);
             for(int i = 0; i < 4; i++){
-                shapeFunctionsDerEta.set(i,0, ShapeFunctions.shapeFunctionDerivative1Eta(point[i][1]));
-                shapeFunctionsDerEta.set(i,1, ShapeFunctions.shapeFunctionDerivative2Eta(point[i][1]));
-                shapeFunctionsDerEta.set(i,2, ShapeFunctions.shapeFunctionDerivative3Eta(point[i][1]));
-                shapeFunctionsDerEta.set(i,3, ShapeFunctions.shapeFunctionDerivative4Eta(point[i][1]));
+                shapeFunctionsDerEta.set(i,0, ShapeFunctions.shapeFunctionDerivative1Eta(points[i].getY()));
+                shapeFunctionsDerEta.set(i,1, ShapeFunctions.shapeFunctionDerivative2Eta(points[i].getY()));
+                shapeFunctionsDerEta.set(i,2, ShapeFunctions.shapeFunctionDerivative3Eta(points[i].getY()));
+                shapeFunctionsDerEta.set(i,3, ShapeFunctions.shapeFunctionDerivative4Eta(points[i].getY()));
             }
 
         shapeFunctionsDerPsi = new Matrix(4, 4);
             for(int i = 0; i < 4; i++){
-                shapeFunctionsDerPsi.set(i,0, ShapeFunctions.shapeFunctionDerivative1Psi(point[i][1]));
-                shapeFunctionsDerPsi.set(i,1, ShapeFunctions.shapeFunctionDerivative2Psi(point[i][1]));
-                shapeFunctionsDerPsi.set(i,2, ShapeFunctions.shapeFunctionDerivative3Psi(point[i][1]));
-                shapeFunctionsDerPsi.set(i,3, ShapeFunctions.shapeFunctionDerivative4Psi(point[i][1]));
+                shapeFunctionsDerPsi.set(i,0, ShapeFunctions.shapeFunctionDerivative1Psi(points[i].getX()));
+                shapeFunctionsDerPsi.set(i,1, ShapeFunctions.shapeFunctionDerivative2Psi(points[i].getX()));
+                shapeFunctionsDerPsi.set(i,2, ShapeFunctions.shapeFunctionDerivative3Psi(points[i].getX()));
+                shapeFunctionsDerPsi.set(i,3, ShapeFunctions.shapeFunctionDerivative4Psi(points[i].getX()));
             }
 
     }

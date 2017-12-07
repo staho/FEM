@@ -66,7 +66,7 @@ public class Grid {
 
 
 
-                    EL.add(new Element().withArray(tab).withNodes(nodes));
+                    EL.add(new Element(globalData.getShapeFunctionsDerEta(), globalData.getShapeFunctionsDerPsi()).withArray(tab).withNodes(nodes));
                 }
             }
         }

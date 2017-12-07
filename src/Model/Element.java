@@ -1,5 +1,9 @@
 package Model;
 
+import Jama.Matrix;
+import Model.Maths.IntegralPoints;
+import Model.Maths.Point;
+
 public class Element {
 
     private int [] IDArray = null;
@@ -8,9 +12,48 @@ public class Element {
     private final int noOfIDs = 4;
     private int elementID = 0;
 
+    private Matrix [] jacobian;
+    private Matrix shapeFunctionsDerEta;
+    private Matrix shapeFunctionsDerPsi;
 
-    public Element() {
+
+
+    public Element(Matrix shapeFunctionsDerEta, Matrix shapeFunctionsDerPsi) {
         IDArray = new int[this.noOfIDs];
+        this.shapeFunctionsDerEta = shapeFunctionsDerEta;
+        this.shapeFunctionsDerPsi = shapeFunctionsDerPsi;
+
+        jacobian = new Matrix[4];
+
+    }
+
+
+    //XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+    public void calculateJacobians(){
+
+        Point[] points= IntegralPoints.getIntegralPoints();
+
+        for(int i = 0; i < 4; i++) {
+            double dxDpsi = 0;
+            double dxDeta = 0;
+            double dyDpsi = 0;
+            double dyDeta = 0;
+
+            for(int j = 0; j < 4; j++) {
+                dxDeta += shapeFunctionsDerEta.get(i, j) * nodes[j].getX();
+                dxDpsi += shapeFunctionsDerPsi.get(i, j) * nodes[j].getX();
+                dyDeta += shapeFunctionsDerEta.get(i, j) * nodes[j].getY();
+                dyDpsi += shapeFunctionsDerPsi.get(i, j) * nodes[j].getY();
+            }
+
+            jacobian[i].set(0,0, dxDeta);
+            jacobian[i].set(0,1, dyDeta);
+            jacobian[i].set(1,0, dxDeta);
+            jacobian[i].set(0,1, dyDeta);
+
+        }
+        
+
     }
 
     public int[] getIDArray() {
