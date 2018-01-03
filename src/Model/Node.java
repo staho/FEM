@@ -1,5 +1,7 @@
 package Model;
 
+import Model.Maths.Point;
+
 public class Node {
     private double x;
     private double y;
@@ -8,11 +10,10 @@ public class Node {
     private final int uid;
     private double temp;
 
-    public Node(double x, double y, boolean status) {
+    public Node(double x, double y) {
         this.x = x;
         this.y = y;
-        this.status = status;
-        uid = 0;
+        uid = -1;
     }
 
     public Node(double x, double y, final int uid, boolean status, double initialTemp) {
@@ -21,6 +22,13 @@ public class Node {
         this.uid = uid;
         this.status = status;
         this.temp = initialTemp;
+    }
+
+    public Node(Point point){
+        this.x = point.getX();
+        this.y = point.getY();
+        uid = -1;
+        status = false;
     }
 
     public double getTemp() {

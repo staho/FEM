@@ -5,26 +5,42 @@ import Model.GlobalData;
 import Model.Grid;
 import Model.Maths.Equation;
 import Model.Maths.IntegralPoints;
+import Model.Maths.Solver;
+import Model.Node;
+import Jama.Matrix;
 
 public class Main {
 
     public static void main(String[] args) {
         GlobalData x = new GlobalData(true);
-        System.out.println("H:" + x.getH());
-        System.out.println("B:" + x.getB());
+//        x.compute();
+//        x.gethGlobal().print(10, 15);
+//        for(int i = 0; i < tab.length; i++){
+//            for(int j = 0; j < tab[i].length; j ++){
+//                System.out.printf("%.15f\t", tab[i][j]);
+//            }
+//            System.out.println("");
+//        }
 
-        Grid grid = new Grid(x);
+        double[] t;
+        for (int itau = 0; itau < x.getTau(); itau += x.getdTau()){
+            x.compute();
+            t = Solver.gaussElimination(x.getNh(), x.gethGlobal().getArray(), x.getpGlobal());
+            for(int i = 0; i < x.getnH(); i++){
+                ((Node)(x.getGrid().getND().get(i))).setTemp(t[i]);
+            }
 
-        grid.generateGrid();
+            int count = 0;
+            for(int i = 0; i < x.getnB(); i++){
+                for(int j = 0; j < x.getnH(); j++){
+                    double temp = ((Node)(x.getGrid().getND().get(count++))).getTemp();
+                    System.out.printf("%.15f\t", temp);
 
-        Matrix matrix = Matrix.random(2,2);
-        matrix.print(5, 2);
-
-
-        Matrix matrix1 = matrix.transpose();
-        matrix1.print(5, 2);
-        System.out.println(matrix1.det());
-
+                }
+                System.out.println("");
+            }
+            System.out.println("\n\n");
+        }
 
     }
 }

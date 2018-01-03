@@ -11,14 +11,49 @@ public class Grid {
 
     private static Grid grid = null;
 
-    public Grid() {
-        globalData = GlobalData.getInstance();
+    public Grid(GlobalData globalData) {
+        this.globalData = globalData;
         nh = globalData.getNh();
         ne = globalData.getNe();
-        this.globalData = globalData;
 
         ND = new ArrayList<>(nh);
         EL = new ArrayList<>(ne);
+    }
+
+    public void generateGrid(){
+        //first generate nodes list
+        double dx = globalData.getDx();
+        double dy = globalData.getDy();
+
+        for (int i = 0; i < globalData.getnB(); ++i)
+            for (int j = 0; j < globalData.getnH(); ++j){
+                double x = i * dx;
+                double y = j * dy;
+                boolean status = false;
+                if(x == 0.0 || y == 0.0 || x == globalData.getnB() || y == globalData.getH()){
+                    status = true;
+                }
+                ND.add(new Node(x, y, i * globalData.getnH() + j, status, globalData.getT0()));
+            }
+        //generate element list
+        for (int i = 0 ; i < globalData.getnB() - 1; ++i){
+            for (int j = 0; j < globalData.getnH() - 1; ++j){
+                int [] tab = new int[4];
+
+                tab[0] = j + i * globalData.getnH();
+                tab[3] = tab[0] + 1;
+                tab[1] = j + (i+1) * globalData.getnH();
+                tab[2] = tab[1] + 1;
+
+                Node [] nodes = new Node[4];
+                int z = 0;
+                for(int nodeId: tab){
+                    nodes[z] = ND.get(nodeId);
+                    z++;
+                }
+                EL.add(new Element(tab, nodes));
+            }
+        }
     }
 
     public void setND(List<Node> ND) {
@@ -35,57 +70,5 @@ public class Grid {
 
     public List getEL() {
         return EL;
-    }
-
-    public void generateGrid(){
-        //first generate nodes list
-        {
-            double dx = globalData.getDx();
-            double dy = globalData.getDy();
-
-            for (int i = 0; i < globalData.getnB(); ++i)
-                for (int j = 0; j < globalData.getnH(); ++j){
-                    double x = i * dx;
-                    double y = j * dy;
-                    boolean status = false;
-                    if(x == 0.0 || y == 0.0 || x == globalData.getnB() || y == globalData.getH()){
-                        status = true;
-                    }
-
-                    ND.add(new Node(x, y, i * globalData.getnH() + j, status, globalData.getT0()));
-
-                }
-
-        }
-        //generate element list
-        {
-            for (int i = 0 ; i < globalData.getnB() - 1; ++i){
-                for (int j = 0; j < globalData.getnH() - 1; ++j){
-
-                    int [] tab = new int[4];
-
-                    tab[0] = j + i * globalData.getnH();
-                    tab[3] = tab[0] + 1;
-                    tab[1] = j + (i+1) * globalData.getnH();
-                    tab[2] = tab[1] + 1;
-
-                    Node [] nodes = new Node[4];
-                    int z = 0;
-                    for(int nodeId: tab){
-                        nodes[z] = ND.get(nodeId);
-                        z++;
-                    }
-                    EL.add(new Element(globalData.getShapeFunctionsDerEta(), globalData.getShapeFunctionsDerPsi()).withArray(tab).withNodes(nodes));
-                }
-            }
-        }
-
-    }
-
-    public static Grid getInstance(){
-        if (grid == null){
-            grid = new Grid();
-        }
-        return grid;
     }
 }

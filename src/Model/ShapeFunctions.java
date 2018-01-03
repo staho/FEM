@@ -30,8 +30,8 @@ public class ShapeFunctions {
         return -0.25 * (1 - psi);
     }
 
-    public static double shapeFunctionDerivative2Eta(double psi) { //0.25 * (1 - psi)
-        return -1. * shapeFunctionDerivative1Eta(psi);
+    public static double shapeFunctionDerivative2Eta(double psi) {
+        return -0.25 * (1 + psi);
     }
 
     public static double shapeFunctionDerivative3Eta(double psi){
@@ -39,8 +39,8 @@ public class ShapeFunctions {
     }
 
     public static double shapeFunctionDerivative4Eta(double psi){
-        return -1. * shapeFunctionDerivative3Eta(psi);
-    } //-0.25 * (1 + psi)
+        return 0.25 * (1 - psi);
+    }
 
     //Psi derr section
     //********************************************************************

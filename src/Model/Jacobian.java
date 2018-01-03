@@ -17,22 +17,22 @@ public class Jacobian {
 
         J = new Matrix(2,2);
 
-        double dxDpsi = this.shapeFunctionsDerPsi.get(integrationPoint, 0) * x[0] +
-                this.shapeFunctionsDerPsi.get(integrationPoint, 1) * x[1] +
-                this.shapeFunctionsDerPsi.get(integrationPoint, 2) * x[2] +
-                this.shapeFunctionsDerPsi.get(integrationPoint, 3) * x[3];
-        double dyDpsi = this.shapeFunctionsDerPsi.get(integrationPoint, 0) * y[0] +
-                this.shapeFunctionsDerPsi.get(integrationPoint, 1) * y[1] +
-                this.shapeFunctionsDerPsi.get(integrationPoint, 2) * y[2] +
-                this.shapeFunctionsDerPsi.get(integrationPoint, 3) * y[3];
-        double dxDeta = this.shapeFunctionsDerEta.get(integrationPoint, 0) * x[0] +
-                this.shapeFunctionsDerEta.get(integrationPoint, 1) * x[1] +
-                this.shapeFunctionsDerEta.get(integrationPoint, 2) * x[2] +
-                this.shapeFunctionsDerEta.get(integrationPoint, 3) * x[3];
-        double dyDeta = this.shapeFunctionsDerEta.get(integrationPoint, 0) * y[0] +
-                this.shapeFunctionsDerEta.get(integrationPoint, 1) * y[1] +
-                this.shapeFunctionsDerEta.get(integrationPoint, 2) * y[2] +
-                this.shapeFunctionsDerEta.get(integrationPoint, 3) * y[3];
+        double dxDpsi = this.shapeFunctionsDerPsi.get(integrationPoint, 0) * x[0]
+                + this.shapeFunctionsDerPsi.get(integrationPoint, 1) * x[1]
+                + this.shapeFunctionsDerPsi.get(integrationPoint, 2) * x[2]
+                + this.shapeFunctionsDerPsi.get(integrationPoint, 3) * x[3];
+        double dyDpsi = this.shapeFunctionsDerPsi.get(integrationPoint, 0) * y[0]
+                + this.shapeFunctionsDerPsi.get(integrationPoint, 1) * y[1]
+                + this.shapeFunctionsDerPsi.get(integrationPoint, 2) * y[2]
+                + this.shapeFunctionsDerPsi.get(integrationPoint, 3) * y[3];
+        double dxDeta = this.shapeFunctionsDerEta.get(integrationPoint, 0) * x[0]
+                + this.shapeFunctionsDerEta.get(integrationPoint, 1) * x[1]
+                + this.shapeFunctionsDerEta.get(integrationPoint, 2) * x[2]
+                + this.shapeFunctionsDerEta.get(integrationPoint, 3) * x[3];
+        double dyDeta = this.shapeFunctionsDerEta.get(integrationPoint, 0) * y[0]
+                + this.shapeFunctionsDerEta.get(integrationPoint, 1) * y[1]
+                + this.shapeFunctionsDerEta.get(integrationPoint, 2) * y[2]
+                + this.shapeFunctionsDerEta.get(integrationPoint, 3) * y[3];
 
         J.set(0,0,dxDpsi);
         J.set(0,1,dyDpsi);
@@ -44,6 +44,10 @@ public class Jacobian {
         jInverted = J.transpose();
         jInverted.set(0,1, jInverted.get(0,1)*(-1.0));
         jInverted.set(1,0, jInverted.get(1,0)*(-1.0));
+    }
+
+    public Matrix getFinalJacobian(){
+        return jInverted.times(1.0/det);
     }
 
     public Matrix getjInverted() {

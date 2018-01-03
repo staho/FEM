@@ -27,15 +27,18 @@ public class GlobalData {
     private double k;       //heat conduction ratio
     private double ro;      //density
 
-    private Matrix HCurrent;
-    private Matrix HGlobal;
-    private double[] Pcurrent;
-    private double[] Pglobal;
+    private Matrix hCurrent;
+    private Matrix hGlobal;
+    private double[] pCurrent;
+    private double[] pGlobal;
     private Matrix shapeFunctionsDerEta;
     private Matrix shapeFunctionsDerPsi;
+    private Matrix shapeFunctions;
+    private Element localElement;
 
     private static GlobalData globalData;
 
+    private Grid grid;
 
     public GlobalData() {
 
@@ -63,15 +66,20 @@ public class GlobalData {
             this.setDx(this.getB() / (this.getnB() - 1));
             this.setDy(this.getH() / (this.getnH() - 1));
 
-            this.HCurrent = new Matrix(4,4);
-            this.Pcurrent = new double[4];
-            this.HGlobal = new Matrix(this.nh, this.nh);
-            this.Pglobal = new double[]{0.,0.,0.,0.};
+            this.hCurrent = null;
+            this.pCurrent = null;
+            this.hGlobal = new Matrix(this.nh, this.nh);
+            this.pGlobal = new double[this.nh];
+            for (double elem: pGlobal) elem = 0.;
+
 
             generateDerMatrices();
+            generateLocalElement();
+
+            grid = new Grid(this);
+            grid.generateGrid();
         }
     }
-
 
     private void generateDerMatrices(){
         Point[] points = IntegralPoints.getIntegralPoints();
@@ -91,6 +99,121 @@ public class GlobalData {
                 shapeFunctionsDerPsi.set(i,2, ShapeFunctions.shapeFunctionDerivative3Psi(points[i].getX()));
                 shapeFunctionsDerPsi.set(i,3, ShapeFunctions.shapeFunctionDerivative4Psi(points[i].getX()));
             }
+        shapeFunctions = new Matrix(4,4);
+            for(int i = 0; i < 4; i++){
+                shapeFunctions.set(i,0, ShapeFunctions.shapeFunction1(points[i].getY(), points[i].getX()));
+                shapeFunctions.set(i,1, ShapeFunctions.shapeFunction2(points[i].getY(), points[i].getX()));
+                shapeFunctions.set(i,2, ShapeFunctions.shapeFunction3(points[i].getY(), points[i].getX()));
+                shapeFunctions.set(i,3, ShapeFunctions.shapeFunction4(points[i].getY(), points[i].getX()));
+            }
+    }
+
+    private void generateLocalElement(){
+        Node [] localNodes = new Node[4];
+        Point [] integrationPoints = IntegralPoints.getIntegralPoints();
+        for (int i = 0; i < localNodes.length; i++) localNodes[i] = new Node(integrationPoints[i]);
+
+        int [] fakeIds = new int[]{0,0,0,0};
+        localElement = new Element(fakeIds, localNodes);
+
+        Surface [] surfaces = localElement.getSurfaces();
+
+        for(int i = 0; i < 4; i++){
+            double [][] shapeFvals = new double[2][4];
+            for(int j = 0; j < 2; j++){
+                shapeFvals[j][0] = ShapeFunctions.shapeFunction1(surfaces[i].getSurf()[j].getY(), surfaces[i].getSurf()[j].getX());
+                shapeFvals[j][1] = ShapeFunctions.shapeFunction2(surfaces[i].getSurf()[j].getY(), surfaces[i].getSurf()[j].getX());
+                shapeFvals[j][2] = ShapeFunctions.shapeFunction3(surfaces[i].getSurf()[j].getY(), surfaces[i].getSurf()[j].getX());
+                shapeFvals[j][3] = ShapeFunctions.shapeFunction4(surfaces[i].getSurf()[j].getY(), surfaces[i].getSurf()[j].getX());
+            }
+            surfaces[i].setShapeFunctionVals(shapeFvals);
+        }
+    }
+
+    public void compute(){
+        for(double x : pGlobal) x = 0.;
+
+        Jacobian jacobian;
+        double[] dNdx = new double[4];
+        double[] dNdy = new double[4];
+        double[] coordsX = new double[4];
+        double[] coordsY = new double[4];
+        double[] initialTemps = new double[4];
+        double t0p = 0., cij;
+        int id;
+        double detJ = 0.;
+
+        for(int elemIter = 0; elemIter < ne; elemIter++){  //iterating through all elements of grid
+            hCurrent = new Matrix(4,4);
+            pCurrent = new double[4];
+            for(double pElem: pCurrent) pElem = 0.;
+
+            for(int i = 0; i < 4; i++){
+                id = ((Element)(grid.getEL().get(elemIter))).getIDArray()[i];
+                coordsX[i] = ((Node)(grid.getND().get(id))).getX();
+                coordsY[i] = ((Node)(grid.getND().get(id))).getY();
+                initialTemps[i] = ((Node)(grid.getND().get(id))).getTemp();
+            }
+
+            for (int ipIter = 0; ipIter < 4; ipIter++){
+                jacobian = new Jacobian(ipIter, coordsX, coordsY, shapeFunctionsDerEta, shapeFunctionsDerPsi);
+                t0p = 0;
+
+                for(int i = 0; i < 4; i++){
+                    dNdx[i] = jacobian.getFinalJacobian().get(0,0) * shapeFunctionsDerPsi.get(ipIter, i)
+                            + jacobian.getFinalJacobian().get(0,1) * shapeFunctionsDerEta.get(ipIter, i);
+
+                    dNdy[i] = jacobian.getFinalJacobian().get(1, 0) * shapeFunctionsDerPsi.get(ipIter, i)
+                            + jacobian.getFinalJacobian().get(1, 1) * shapeFunctionsDerEta.get(ipIter, i);
+
+                    t0p += initialTemps[i] * shapeFunctions.get(ipIter, i);
+                }
+
+                detJ = Math.abs(jacobian.getDet());
+                for(int i = 0; i < 4; i++){
+                    for(int j = 0; j < 4; j++){
+                        cij = c * ro * shapeFunctions.get(ipIter, i) * shapeFunctions.get(ipIter, j) * detJ;
+                        double tempVal = hCurrent.get(i, j) + k * (dNdx[i] * dNdx[j] + dNdy[i] * dNdy[j]) * detJ + cij / dTau;
+                        hCurrent.set(i, j, tempVal);
+                        tempVal = pCurrent[i] + cij / dTau * t0p;
+                        pCurrent[i] = tempVal;
+                    }
+                }
+            }
+
+            //boundary conditions
+            //iterates through number of boundary condition edges
+            Element tempElement = (Element)(grid.getEL().get(elemIter));
+            for(int surfIter = 0; surfIter < tempElement.getNodesOfBorders(); surfIter++) {
+                id = tempElement.getIDOfBordersSurfaces().get(surfIter);
+                Surface surface = tempElement.getSurfaceOfId(id);
+
+                detJ = Math.sqrt(Math.pow((surface.getSurf()[0].getX() - surface.getSurf()[1].getX()), 2)
+                        + Math.pow((surface.getSurf()[0].getX() - surface.getSurf()[1].getX()), 2)) / 2.0;
+
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 4; j++) {
+                        for (int k = 0; k < 4; k++) {
+                            double tempVal = hCurrent.get(j, k);
+                            tempVal += alfa * localElement.getSurfaces()[id].getShapeFunctionVals()[i][j] * localElement.getSurfaces()[id].getShapeFunctionVals()[i][k] * detJ;
+                        }
+                        pCurrent[j] += alfa * tInf * localElement.getSurfaces()[id].getShapeFunctionVals()[i][j] * detJ;
+                    }
+                }
+            }
+            //agregation
+            for(int i = 0; i < 4; i++){
+                for(int j = 0; j < 4; j++){
+                    int first = tempElement.getIDArray()[i];
+                    int second = tempElement.getIDArray()[j];
+                    double tempValue = hGlobal.get(first, second) + hCurrent.get(i,j);
+                }
+                pGlobal[tempElement.getIDArray()[i]] += pCurrent[i];
+            }
+
+
+        }
+
 
     }
 
@@ -102,24 +225,11 @@ public class GlobalData {
         } catch (Exception e){
             e.printStackTrace();
         }
-
         return null;
     }
 
-    public void compute(){
-        for(double x : Pglobal) x = 0.;
-
-        Grid grid = Grid.getInstance();
-        Jacobian jacobian;
-        
-
-    }
-
-    public static GlobalData getInstance(){
-        if (globalData == null){
-            globalData = new GlobalData(true);
-        }
-        return globalData;
+    public Grid getGrid() {
+        return grid;
     }
 
     public double getTau() {
@@ -178,36 +288,36 @@ public class GlobalData {
         this.ro = ro;
     }
 
-    public Matrix getHCurrent() {
-        return HCurrent;
+    public Matrix gethCurrent() {
+        return hCurrent;
     }
 
-    public void setHCurrent(Matrix HCurrent) {
-        this.HCurrent = HCurrent;
+    public void sethCurrent(Matrix hCurrent) {
+        this.hCurrent = hCurrent;
     }
 
-    public Matrix getHGlobal() {
-        return HGlobal;
+    public Matrix gethGlobal() {
+        return hGlobal;
     }
 
-    public void setHGlobal(Matrix HGlobal) {
-        this.HGlobal = HGlobal;
+    public void sethGlobal(Matrix hGlobal) {
+        this.hGlobal = hGlobal;
     }
 
-    public double[] getPcurrent() {
-        return Pcurrent;
+    public double[] getpCurrent() {
+        return pCurrent;
     }
 
-    public void setPcurrent(double[] pcurrent) {
-        Pcurrent = pcurrent;
+    public void setpCurrent(double[] pCurrent) {
+        this.pCurrent = pCurrent;
     }
 
-    public double[] getPglobal() {
-        return Pglobal;
+    public double[] getpGlobal() {
+        return pGlobal;
     }
 
-    public void setPglobal(double[] pglobal) {
-        Pglobal = pglobal;
+    public void setpGlobal(double[] pGlobal) {
+        this.pGlobal = pGlobal;
     }
 
     public void setShapeFunctionsDerEta(Matrix shapeFunctionsDerEta) {

@@ -4,68 +4,38 @@ import Jama.Matrix;
 import Model.Maths.IntegralPoints;
 import Model.Maths.Point;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class Element {
 
     private int [] IDArray = null;
     private Node [] nodes = null;
     private Surface [] surfaces = null;
-    private double [] pow = null;
     private final int noOfIDs = 4;
-    private int elementID = 0;
+    private int nodesOfBorders = 0;
+    private List<Integer> IDOfBordersSurfaces = null;
 
-    private Matrix [] jacobian;
-    private double [] jacobianDets;
-    private Matrix shapeFunctionsDerEta;
-    private Matrix shapeFunctionsDerPsi;
+    public Element(int[] IDArray, Node[] nodes) {
+        this.IDArray = IDArray;
+        this.nodes = nodes;
+        IDOfBordersSurfaces = new LinkedList<>();
 
+        surfaces = new Surface[4];
+        surfaces[0] = new Surface(nodes[3], nodes[0]);
+        surfaces[1] = new Surface(nodes[0], nodes[1]);
+        surfaces[2] = new Surface(nodes[1], nodes[2]);
+        surfaces[3] = new Surface(nodes[2], nodes[3]);
 
+        for(Surface surface: surfaces)  //checking if edge is on border
+            if(surface.getSurf()[0].isStatus() && surface.getSurf()[1].isStatus()) nodesOfBorders++;
 
-    public Element(Matrix shapeFunctionsDerEta, Matrix shapeFunctionsDerPsi) {
-        IDArray = new int[this.noOfIDs];
-        this.shapeFunctionsDerEta = shapeFunctionsDerEta;
-        this.shapeFunctionsDerPsi = shapeFunctionsDerPsi;
-
-
-        jacobian = new Matrix[4];
-        for(int i = 0; i < 4; i++){
-            jacobian[i] = new Matrix(2,2);
-        }
-        jacobianDets = new double[4];
-
+        for(int i = 0; i < 4; i++)
+            if(surfaces[i].getSurf()[0].isStatus() && surfaces[i].getSurf()[1].isStatus()) IDOfBordersSurfaces.add(i);
     }
 
-
-    //XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
-    public void calculateJacobians(){
-
-        Point[] points= IntegralPoints.getIntegralPoints();
-
-        for(int i = 0; i < 4; i++) {
-            double dxDpsi = 0;
-            double dxDeta = 0;
-            double dyDpsi = 0;
-            double dyDeta = 0;
-
-            for(int j = 0; j < 4; j++) {
-                dxDeta += shapeFunctionsDerEta.get(i, j) * nodes[j].getX();
-                dxDpsi += shapeFunctionsDerPsi.get(i, j) * nodes[j].getX();
-                dyDeta += shapeFunctionsDerEta.get(i, j) * nodes[j].getY();
-                dyDpsi += shapeFunctionsDerPsi.get(i, j) * nodes[j].getY();
-            }
-
-            jacobian[i].set(0,0, dxDeta);
-            jacobian[i].set(0,1, dyDeta);
-            jacobian[i].set(1,0, dxDpsi);
-            jacobian[i].set(0,1, dyDpsi);
-
-            jacobianDets[i] = jacobian[i].det();
-            jacobian[i].transpose();
-            jacobian[i].set(0,1, jacobian[i].get(0,1)*(-1.0));
-            jacobian[i].set(1,0, jacobian[i].get(1,0)*(-1.0));
-
-            jacobian[i] = jacobian[i].times(1.0/(jacobianDets[i]));
-
-        }
+    public int getNodesOfBorders() {
+        return nodesOfBorders;
     }
 
     public int[] getIDArray() {
@@ -80,25 +50,16 @@ public class Element {
         IDArray[index] = id;
     }
 
-    public Element withArray(int[] IDArray){
-        this.IDArray = IDArray;
-        return this;
+    public List<Integer> getIDOfBordersSurfaces() {
+        return IDOfBordersSurfaces;
     }
 
-    public Element withNodes(Node [] nodes){
-        this.nodes = nodes;
+    public Surface[] getSurfaces() {
+        return surfaces;
+    }
 
-//        for (Node node: nodes){
-//            System.out.println("ID: " + node.getUid() +  " x: " + node.getX() + " y:" + node.getY() + " temp:" + node.getTemp());
-//        }
-//        System.out.println();
-
-        this.surfaces = new Surface[4];
-        this.surfaces[0] = new Surface(nodes[3], nodes[0]);
-        this.surfaces[1] = new Surface(nodes[0], nodes[1]);
-        this.surfaces[2] = new Surface(nodes[1], nodes[2]);
-        this.surfaces[3] = new Surface(nodes[2], nodes[3]);
-
-        return this;
+    public Surface getSurfaceOfId(int id){
+        if(id >= 0 && id <= surfaces.length) return surfaces[id];
+        else return null;
     }
 }

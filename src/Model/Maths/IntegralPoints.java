@@ -39,10 +39,10 @@ public class IntegralPoints {
 
     public static double[][] getIntegralPointsTab(){
         double [][] points = new double[][]{
-                {0.577, 0.577},
-                {-0.577, 0.577},
+                {-0.577, -0.577},
                 {0.577, -0.577},
-                {-0.577, -0.577}
+                {0.577, 0.577},
+                {-0.577, 0.577}
         };
         return points;
     }
@@ -50,10 +50,10 @@ public class IntegralPoints {
     public static Point[] getIntegralPoints(){
         Point [] points = new Point[4];
 
-        points[0] = new Point(0.577, 0.577);
-        points[1] = new Point(-0.577, 0.577);
-        points[2] = new Point(0.577, -0.577);
-        points[3] = new Point(-0.577, -0.577);
+        points[0] = new Point(-0.577, -0.577);
+        points[1] = new Point(0.577, -0.577);
+        points[2] = new Point(0.577, 0.577);
+        points[3] = new Point(-0.577, 0.577);
 
         return points;
 
