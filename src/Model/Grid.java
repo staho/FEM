@@ -42,7 +42,7 @@ public class Grid {
 
             for (int i = 0; i < globalData.getnB(); ++i)
                 for (int j = 0; j < globalData.getnH(); ++j)
-                    ND.add(new Node(i * dx, j * dy, i * globalData.getnH() + j, false));
+                    ND.add(new Node(i * dx, j * dy, i * globalData.getnH() + j, false, globalData.getT0()));
 
         }
         //generate element list
@@ -68,6 +68,9 @@ public class Grid {
 
                     EL.add(new Element(globalData.getShapeFunctionsDerEta(), globalData.getShapeFunctionsDerPsi()).withArray(tab).withNodes(nodes));
                 }
+            }
+            for (Element element : EL){
+                element.calculateJacobians();
             }
         }
 

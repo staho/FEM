@@ -8,6 +8,7 @@ public class Element {
 
     private int [] IDArray = null;
     private Node [] nodes = null;
+    private Surface [] surfaces = null;
     private double [] pow = null;
     private final int noOfIDs = 4;
     private int elementID = 0;
@@ -24,7 +25,11 @@ public class Element {
         this.shapeFunctionsDerEta = shapeFunctionsDerEta;
         this.shapeFunctionsDerPsi = shapeFunctionsDerPsi;
 
+
         jacobian = new Matrix[4];
+        for(int i = 0; i < 4; i++){
+            jacobian[i] = new Matrix(2,2);
+        }
         jacobianDets = new double[4];
 
     }
@@ -84,9 +89,15 @@ public class Element {
         this.nodes = nodes;
 
         for (Node node: nodes){
-            System.out.println("ID: " + node.getUid() +  " x: " + node.getX() + " y:" + node.getY());
+            System.out.println("ID: " + node.getUid() +  " x: " + node.getX() + " y:" + node.getY() + " temp:" + node.getTemp());
         }
         System.out.println();
+
+        this.surfaces = new Surface[4];
+        this.surfaces[0] = new Surface(nodes[3], nodes[0]);
+        this.surfaces[1] = new Surface(nodes[0], nodes[1]);
+        this.surfaces[2] = new Surface(nodes[1], nodes[2]);
+        this.surfaces[3] = new Surface(nodes[2], nodes[3]);
 
         return this;
     }

@@ -18,6 +18,7 @@ public class GlobalData {
     private int nB;     //number of nodes on width
     private int nh;     //number of nodes
     private int ne;     //number of elements
+    private double t0;
 
     private Matrix shapeFunctionsDerEta;
     private Matrix shapeFunctionsDerPsi;
@@ -34,6 +35,7 @@ public class GlobalData {
             this.H = tempData.getH();
             this.nH = tempData.getnH();
             this.nB = tempData.getnB();
+            this.t0 = tempData.getT0();
 
 
             this.setNh(this.getnH() * this.getnB());
@@ -77,6 +79,14 @@ public class GlobalData {
         }
 
         return null;
+    }
+
+    public double getT0() {
+        return t0;
+    }
+
+    public void setT0(double t0) {
+        this.t0 = t0;
     }
 
     public Matrix getShapeFunctionsDerEta() {

@@ -6,6 +6,7 @@ public class Node {
     private double result;
     private boolean status;
     private final int uid;
+    private double temp;
 
     public Node(double x, double y, boolean status) {
         this.x = x;
@@ -14,11 +15,20 @@ public class Node {
         uid = 0;
     }
 
-    public Node(double x, double y, final int uid, boolean status) {
+    public Node(double x, double y, final int uid, boolean status, double initialTemp) {
         this.x = x;
         this.y = y;
         this.uid = uid;
         this.status = status;
+        this.temp = initialTemp;
+    }
+
+    public double getTemp() {
+        return temp;
+    }
+
+    public void setTemp(double temp) {
+        this.temp = temp;
     }
 
     public boolean isStatus() {
