@@ -33,7 +33,7 @@ public class GlobalData {
     private double[] pGlobal;
     private Matrix shapeFunctionsDerEta;
     private Matrix shapeFunctionsDerPsi;
-    private Matrix shapeFunctions;
+    private Matrix shapeFunctionsV;
     private Element localElement;
 
     private static GlobalData globalData;
@@ -84,7 +84,7 @@ public class GlobalData {
     private void generateDerMatrices(){
         Point[] points = IntegralPoints.getIntegralPoints();
 
-        shapeFunctionsDerEta = new Matrix(4, 4);
+        this.shapeFunctionsDerEta = new Matrix(4, 4);
             for(int i = 0; i < 4; i++){
                 shapeFunctionsDerEta.set(i,0, ShapeFunctions.shapeFunctionDerivative1Eta(points[i].getY()));
                 shapeFunctionsDerEta.set(i,1, ShapeFunctions.shapeFunctionDerivative2Eta(points[i].getY()));
@@ -92,19 +92,19 @@ public class GlobalData {
                 shapeFunctionsDerEta.set(i,3, ShapeFunctions.shapeFunctionDerivative4Eta(points[i].getY()));
             }
 
-        shapeFunctionsDerPsi = new Matrix(4, 4);
+        this.shapeFunctionsDerPsi = new Matrix(4, 4);
             for(int i = 0; i < 4; i++){
                 shapeFunctionsDerPsi.set(i,0, ShapeFunctions.shapeFunctionDerivative1Psi(points[i].getX()));
                 shapeFunctionsDerPsi.set(i,1, ShapeFunctions.shapeFunctionDerivative2Psi(points[i].getX()));
                 shapeFunctionsDerPsi.set(i,2, ShapeFunctions.shapeFunctionDerivative3Psi(points[i].getX()));
                 shapeFunctionsDerPsi.set(i,3, ShapeFunctions.shapeFunctionDerivative4Psi(points[i].getX()));
             }
-        shapeFunctions = new Matrix(4,4);
+        this.shapeFunctionsV = new Matrix(4,4);
             for(int i = 0; i < 4; i++){
-                shapeFunctions.set(i,0, ShapeFunctions.shapeFunction1(points[i].getY(), points[i].getX()));
-                shapeFunctions.set(i,1, ShapeFunctions.shapeFunction2(points[i].getY(), points[i].getX()));
-                shapeFunctions.set(i,2, ShapeFunctions.shapeFunction3(points[i].getY(), points[i].getX()));
-                shapeFunctions.set(i,3, ShapeFunctions.shapeFunction4(points[i].getY(), points[i].getX()));
+                this.shapeFunctionsV.set(i,0, ShapeFunctions.shapeFunction1(points[i].getY(), points[i].getX()));
+                this.shapeFunctionsV.set(i,1, ShapeFunctions.shapeFunction2(points[i].getY(), points[i].getX()));
+                this.shapeFunctionsV.set(i,2, ShapeFunctions.shapeFunction3(points[i].getY(), points[i].getX()));
+                this.shapeFunctionsV.set(i,3, ShapeFunctions.shapeFunction4(points[i].getY(), points[i].getX()));
             }
     }
 
@@ -166,13 +166,13 @@ public class GlobalData {
                     dNdy[i] = jacobian.getFinalJacobian().get(1, 0) * shapeFunctionsDerPsi.get(ipIter, i)
                             + jacobian.getFinalJacobian().get(1, 1) * shapeFunctionsDerEta.get(ipIter, i);
 
-                    t0p += initialTemps[i] * shapeFunctions.get(ipIter, i);
+                    t0p += initialTemps[i] * this.shapeFunctionsV.get(ipIter, i);
                 }
 
                 detJ = Math.abs(jacobian.getDet());
                 for(int i = 0; i < 4; i++){
                     for(int j = 0; j < 4; j++){
-                        cij = c * ro * shapeFunctions.get(ipIter, i) * shapeFunctions.get(ipIter, j) * detJ;
+                        cij = c * ro * shapeFunctionsV.get(ipIter, i) * shapeFunctionsV.get(ipIter, j) * detJ;
                         double tempVal = hCurrent.get(i, j) + k * (dNdx[i] * dNdx[j] + dNdy[i] * dNdy[j]) * detJ + cij / dTau;
                         hCurrent.set(i, j, tempVal);
                         tempVal = pCurrent[i] + cij / dTau * t0p;
