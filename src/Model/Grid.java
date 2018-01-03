@@ -41,8 +41,17 @@ public class Grid {
             double dy = globalData.getDy();
 
             for (int i = 0; i < globalData.getnB(); ++i)
-                for (int j = 0; j < globalData.getnH(); ++j)
-                    ND.add(new Node(i * dx, j * dy, i * globalData.getnH() + j, false, globalData.getT0()));
+                for (int j = 0; j < globalData.getnH(); ++j){
+                    double x = i * dx;
+                    double y = j * dy;
+                    boolean status = false;
+                    if(x == 0.0 || y == 0.0 || x == globalData.getnB() || y == globalData.getH()){
+                        status = true;
+                    }
+
+                    ND.add(new Node(x, y, i * globalData.getnH() + j, status, globalData.getT0()));
+
+                }
 
         }
         //generate element list

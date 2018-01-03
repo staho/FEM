@@ -21,7 +21,7 @@ public class ShapeFunctions {
     }
 
     private static double shapeFunctionBase(double psi, double eta, double etaSign, double psiSign){
-        return 0.25 * ((1 - etaSign * eta) * (1 - psiSign * psi));
+        return 0.25 * ((1 + etaSign * eta) * (1 + psiSign * psi));
     }
 
     //Eta derr section
@@ -30,8 +30,8 @@ public class ShapeFunctions {
         return -0.25 * (1 - psi);
     }
 
-    public static double shapeFunctionDerivative2Eta(double psi) {
-        return shapeFunctionDerivative1Eta(psi);
+    public static double shapeFunctionDerivative2Eta(double psi) { //0.25 * (1 - psi)
+        return -1. * shapeFunctionDerivative1Eta(psi);
     }
 
     public static double shapeFunctionDerivative3Eta(double psi){
@@ -40,7 +40,7 @@ public class ShapeFunctions {
 
     public static double shapeFunctionDerivative4Eta(double psi){
         return -1. * shapeFunctionDerivative3Eta(psi);
-    }
+    } //-0.25 * (1 + psi)
 
     //Psi derr section
     //********************************************************************
@@ -49,7 +49,7 @@ public class ShapeFunctions {
     }
 
     public static double shapeFunctionDerivative2Psi( double eta) {
-        return shapeFunctionDerivative1Psi(eta);
+        return -1. * shapeFunctionDerivative1Psi(eta);
     }
 
     public static double shapeFunctionDerivative3Psi(double eta){
