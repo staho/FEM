@@ -207,6 +207,7 @@ public class GlobalData {
                     int first = tempElement.getIDArray()[i];
                     int second = tempElement.getIDArray()[j];
                     double tempValue = hGlobal.get(first, second) + hCurrent.get(i,j);
+                    hGlobal.set(first, second, tempValue);
                 }
                 pGlobal[tempElement.getIDArray()[i]] += pCurrent[i];
             }
