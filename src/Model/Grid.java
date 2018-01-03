@@ -30,10 +30,12 @@ public class Grid {
                 double x = i * dx;
                 double y = j * dy;
                 boolean status = false;
-                if(x == 0.0 || y == 0.0 || x == globalData.getnB() || y == globalData.getH()){
+                if(x == 0.0 || y == 0.0 || x == globalData.getB() || y == globalData.getH()){
                     status = true;
+                    //System.out.println("x: " + x + " y: " + y + " status: " + Boolean.toString(status));
                 }
                 ND.add(new Node(x, y, i * globalData.getnH() + j, status, globalData.getT0()));
+
             }
         //generate element list
         for (int i = 0 ; i < globalData.getnB() - 1; ++i){

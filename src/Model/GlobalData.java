@@ -86,25 +86,25 @@ public class GlobalData {
 
         shapeFunctionsDerEta = new Matrix(4, 4);
             for(int i = 0; i < 4; i++){
-                shapeFunctionsDerEta.set(i,0, ShapeFunctions.shapeFunctionDerivative1Eta(points[i].getY()));
-                shapeFunctionsDerEta.set(i,1, ShapeFunctions.shapeFunctionDerivative2Eta(points[i].getY()));
-                shapeFunctionsDerEta.set(i,2, ShapeFunctions.shapeFunctionDerivative3Eta(points[i].getY()));
-                shapeFunctionsDerEta.set(i,3, ShapeFunctions.shapeFunctionDerivative4Eta(points[i].getY()));
+                shapeFunctionsDerEta.set(i,0, ShapeFunctions.shapeFunctionDerivative1Eta(points[i].getX()));
+                shapeFunctionsDerEta.set(i,1, ShapeFunctions.shapeFunctionDerivative2Eta(points[i].getX()));
+                shapeFunctionsDerEta.set(i,2, ShapeFunctions.shapeFunctionDerivative3Eta(points[i].getX()));
+                shapeFunctionsDerEta.set(i,3, ShapeFunctions.shapeFunctionDerivative4Eta(points[i].getX()));
             }
 
         shapeFunctionsDerPsi = new Matrix(4, 4);
             for(int i = 0; i < 4; i++){
-                shapeFunctionsDerPsi.set(i,0, ShapeFunctions.shapeFunctionDerivative1Psi(points[i].getX()));
-                shapeFunctionsDerPsi.set(i,1, ShapeFunctions.shapeFunctionDerivative2Psi(points[i].getX()));
-                shapeFunctionsDerPsi.set(i,2, ShapeFunctions.shapeFunctionDerivative3Psi(points[i].getX()));
-                shapeFunctionsDerPsi.set(i,3, ShapeFunctions.shapeFunctionDerivative4Psi(points[i].getX()));
+                shapeFunctionsDerPsi.set(i,0, ShapeFunctions.shapeFunctionDerivative1Psi(points[i].getY()));
+                shapeFunctionsDerPsi.set(i,1, ShapeFunctions.shapeFunctionDerivative2Psi(points[i].getY()));
+                shapeFunctionsDerPsi.set(i,2, ShapeFunctions.shapeFunctionDerivative3Psi(points[i].getY()));
+                shapeFunctionsDerPsi.set(i,3, ShapeFunctions.shapeFunctionDerivative4Psi(points[i].getY()));
             }
         shapeFunctionsV = new Matrix(4,4);
             for(int i = 0; i < 4; i++){
-                shapeFunctionsV.set(i,0, ShapeFunctions.shapeFunction1(points[i].getY(), points[i].getX()));
-                shapeFunctionsV.set(i,1, ShapeFunctions.shapeFunction2(points[i].getY(), points[i].getX()));
-                shapeFunctionsV.set(i,2, ShapeFunctions.shapeFunction3(points[i].getY(), points[i].getX()));
-                shapeFunctionsV.set(i,3, ShapeFunctions.shapeFunction4(points[i].getY(), points[i].getX()));
+                shapeFunctionsV.set(i,0, ShapeFunctions.shapeFunction1(points[i].getX(), points[i].getY()));
+                shapeFunctionsV.set(i,1, ShapeFunctions.shapeFunction2(points[i].getX(), points[i].getY()));
+                shapeFunctionsV.set(i,2, ShapeFunctions.shapeFunction3(points[i].getX(), points[i].getY()));
+                shapeFunctionsV.set(i,3, ShapeFunctions.shapeFunction4(points[i].getX(), points[i].getY()));
             }
     }
 
@@ -128,10 +128,10 @@ public class GlobalData {
         for(int i = 0; i < 4; i++){
             double [][] shapeFvals = new double[2][4];
             for(int j = 0; j < 2; j++){
-                shapeFvals[j][0] = ShapeFunctions.shapeFunction1(surfaces[i].getSurf()[j].getY(), surfaces[i].getSurf()[j].getX());
-                shapeFvals[j][1] = ShapeFunctions.shapeFunction2(surfaces[i].getSurf()[j].getY(), surfaces[i].getSurf()[j].getX());
-                shapeFvals[j][2] = ShapeFunctions.shapeFunction3(surfaces[i].getSurf()[j].getY(), surfaces[i].getSurf()[j].getX());
-                shapeFvals[j][3] = ShapeFunctions.shapeFunction4(surfaces[i].getSurf()[j].getY(), surfaces[i].getSurf()[j].getX());
+                shapeFvals[j][0] = ShapeFunctions.shapeFunction1(surfaces[i].getSurf()[j].getX(), surfaces[i].getSurf()[j].getY());
+                shapeFvals[j][1] = ShapeFunctions.shapeFunction2(surfaces[i].getSurf()[j].getX(), surfaces[i].getSurf()[j].getY());
+                shapeFvals[j][2] = ShapeFunctions.shapeFunction3(surfaces[i].getSurf()[j].getX(), surfaces[i].getSurf()[j].getY());
+                shapeFvals[j][3] = ShapeFunctions.shapeFunction4(surfaces[i].getSurf()[j].getX(), surfaces[i].getSurf()[j].getY());
             }
             surfaces[i].setShapeFunctionVals(shapeFvals);
         }
@@ -151,12 +151,13 @@ public class GlobalData {
         double detJ = 0.;
 
         for(int elemIter = 0; elemIter < ne; elemIter++){  //iterating through all elements of grid
+            Element tempElement = (Element)(grid.getEL().get(elemIter));
             hCurrent = new Matrix(4,4);
             pCurrent = new double[4];
             for(double pElem: pCurrent) pElem = 0.;
 
             for(int i = 0; i < 4; i++){
-                id = ((Element)(grid.getEL().get(elemIter))).getIDArray()[i];
+                id = tempElement.getIDArray()[i];
                 coordsX[i] = ((Node)(grid.getND().get(id))).getX();
                 coordsY[i] = ((Node)(grid.getND().get(id))).getY();
                 initialTemps[i] = ((Node)(grid.getND().get(id))).getTemp();
@@ -190,13 +191,12 @@ public class GlobalData {
 
             //boundary conditions
             //iterates through number of boundary condition edges
-            Element tempElement = (Element)(grid.getEL().get(elemIter));
             for(int surfIter = 0; surfIter < tempElement.getNodesOfBorders(); surfIter++) {
                 id = tempElement.getIDOfBordersSurfaces().get(surfIter);
                 Surface surface = tempElement.getSurfaceOfId(id);
 
                 detJ = Math.sqrt(Math.pow((surface.getSurf()[0].getX() - surface.getSurf()[1].getX()), 2)
-                        + Math.pow((surface.getSurf()[0].getX() - surface.getSurf()[1].getX()), 2)) / 2.0;
+                        + Math.pow((surface.getSurf()[0].getY() - surface.getSurf()[1].getY()), 2)) / 2.0;
 
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < 4; j++) {

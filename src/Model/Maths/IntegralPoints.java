@@ -49,7 +49,7 @@ public class IntegralPoints {
 
     public static Point[] getIntegralPoints(){
         Point [] points = new Point[4];
-
+        //psi is X, eta Y
         points[0] = new Point(-0.577, -0.577);
         points[1] = new Point(0.577, -0.577);
         points[2] = new Point(0.577, 0.577);

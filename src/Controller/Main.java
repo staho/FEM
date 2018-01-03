@@ -22,11 +22,12 @@ public class Main {
 //            System.out.println("");
 //        }
 
+
         double[] t;
         for (int itau = 0; itau < x.getTau(); itau += x.getdTau()){
             x.compute();
             t = Solver.gaussElimination(x.getNh(), x.gethGlobal().getArray(), x.getpGlobal());
-            for(int i = 0; i < x.getnH(); i++){
+            for(int i = 0; i < x.getNh(); i++){
                 ((Node)(x.getGrid().getND().get(i))).setTemp(t[i]);
             }
 

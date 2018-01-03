@@ -9,7 +9,7 @@ public class ShapeFunctions {
     }
 
     public static double shapeFunction2(double psi, double eta){
-        return shapeFunctionBase(psi, eta, 1., -1.);
+        return shapeFunctionBase(psi, eta, -1., 1.);
     }
 
     public static double shapeFunction3(double psi, double eta){
@@ -17,7 +17,7 @@ public class ShapeFunctions {
     }
 
     public static double shapeFunction4(double psi, double eta){
-        return shapeFunctionBase(psi, eta, -1., 1.);
+        return shapeFunctionBase(psi, eta, 1., -1.);
     }
 
     private static double shapeFunctionBase(double psi, double eta, double etaSign, double psiSign){
@@ -49,7 +49,7 @@ public class ShapeFunctions {
     }
 
     public static double shapeFunctionDerivative2Psi( double eta) {
-        return -1. * shapeFunctionDerivative1Psi(eta);
+        return 0.25 * (1 - eta);
     }
 
     public static double shapeFunctionDerivative3Psi(double eta){
@@ -57,6 +57,6 @@ public class ShapeFunctions {
     }
 
     public static double shapeFunctionDerivative4Psi(double eta){
-        return -1. * shapeFunctionDerivative3Psi(eta);
+        return -0.25 * (1 + eta);
     }
 }
