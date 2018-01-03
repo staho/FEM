@@ -62,4 +62,8 @@ public class Element {
         if(id >= 0 && id <= surfaces.length) return surfaces[id];
         else return null;
     }
+
+    public void setSurfaces(Surface [] surface){
+        surfaces = surface;
+    }
 }

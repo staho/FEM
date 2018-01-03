@@ -25,8 +25,7 @@ public class Main {
         double[] t;
         for (int itau = 0; itau < x.getTau(); itau += x.getdTau()){
             x.compute();
-            double [][] hGlobal = x.gethGlobal().getArray();
-            t = Solver.gaussElimination(x.getNh(), hGlobal, x.getpGlobal());
+            t = Solver.gaussElimination(x.getNh(), x.gethGlobal().getArray(), x.getpGlobal());
             for(int i = 0; i < x.getnH(); i++){
                 ((Node)(x.getGrid().getND().get(i))).setTemp(t[i]);
             }
