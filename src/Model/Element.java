@@ -88,10 +88,10 @@ public class Element {
     public Element withNodes(Node [] nodes){
         this.nodes = nodes;
 
-        for (Node node: nodes){
-            System.out.println("ID: " + node.getUid() +  " x: " + node.getX() + " y:" + node.getY() + " temp:" + node.getTemp());
-        }
-        System.out.println();
+//        for (Node node: nodes){
+//            System.out.println("ID: " + node.getUid() +  " x: " + node.getX() + " y:" + node.getY() + " temp:" + node.getTemp());
+//        }
+//        System.out.println();
 
         this.surfaces = new Surface[4];
         this.surfaces[0] = new Surface(nodes[3], nodes[0]);

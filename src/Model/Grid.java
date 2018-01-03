@@ -9,7 +9,10 @@ public class Grid {
     private GlobalData globalData;
     private int nh, ne;
 
-    public Grid(GlobalData globalData) {
+    private static Grid grid = null;
+
+    public Grid() {
+        globalData = GlobalData.getInstance();
         nh = globalData.getNh();
         ne = globalData.getNe();
         this.globalData = globalData;
@@ -72,16 +75,17 @@ public class Grid {
                         nodes[z] = ND.get(nodeId);
                         z++;
                     }
-
-
-
                     EL.add(new Element(globalData.getShapeFunctionsDerEta(), globalData.getShapeFunctionsDerPsi()).withArray(tab).withNodes(nodes));
                 }
             }
-            for (Element element : EL){
-                element.calculateJacobians();
-            }
         }
 
+    }
+
+    public static Grid getInstance(){
+        if (grid == null){
+            grid = new Grid();
+        }
+        return grid;
     }
 }

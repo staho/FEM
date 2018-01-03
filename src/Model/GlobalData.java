@@ -14,14 +14,27 @@ public class GlobalData {
     private double B;   //B is the width of field
     private double dy;
     private double dx;
-    private int nH;     //number of nodes on height
-    private int nB;     //number of nodes on width
-    private int nh;     //number of nodes
-    private int ne;     //number of elements
-    private double t0;
+    private int nH;         //number of nodes on height
+    private int nB;         //number of nodes on width
+    private int nh;         //number of nodes
+    private int ne;         //number of elements
+    private double t0;      //starting temperature
+    private double tau;     //time of process
+    private double dTau;    //time differential between each step
+    private double tInf;    //temperature of infinitive
+    private double alfa;    //heat exchange ratio
+    private double c;       //specific heat
+    private double k;       //heat conduction ratio
+    private double ro;      //density
 
+    private Matrix HCurrent;
+    private Matrix HGlobal;
+    private double[] Pcurrent;
+    private double[] Pglobal;
     private Matrix shapeFunctionsDerEta;
     private Matrix shapeFunctionsDerPsi;
+
+    private static GlobalData globalData;
 
 
     public GlobalData() {
@@ -36,12 +49,24 @@ public class GlobalData {
             this.nH = tempData.getnH();
             this.nB = tempData.getnB();
             this.t0 = tempData.getT0();
+            this.tau = tempData.getTau();
+            this.dTau = tempData.getdTau();
+            this.tInf = tempData.gettInf();
+            this.alfa = tempData.getAlfa();
+            this.c = tempData.getC();
+            this.k = tempData.getK();
+            this.ro = tempData.getRo();
 
 
             this.setNh(this.getnH() * this.getnB());
             this.setNe((this.getnB() - 1) * (this.getnH() - 1));
             this.setDx(this.getB() / (this.getnB() - 1));
             this.setDy(this.getH() / (this.getnH() - 1));
+
+            this.HCurrent = new Matrix(4,4);
+            this.Pcurrent = new double[4];
+            this.HGlobal = new Matrix(this.nh, this.nh);
+            this.Pglobal = new double[]{0.,0.,0.,0.};
 
             generateDerMatrices();
         }
@@ -79,6 +104,118 @@ public class GlobalData {
         }
 
         return null;
+    }
+
+    public void compute(){
+        for(double x : Pglobal) x = 0.;
+
+        Grid grid = Grid.getInstance();
+        Jacobian jacobian;
+        
+
+    }
+
+    public static GlobalData getInstance(){
+        if (globalData == null){
+            globalData = new GlobalData(true);
+        }
+        return globalData;
+    }
+
+    public double getTau() {
+        return tau;
+    }
+
+    public void setTau(double tau) {
+        this.tau = tau;
+    }
+
+    public double getdTau() {
+        return dTau;
+    }
+
+    public void setdTau(double dTau) {
+        this.dTau = dTau;
+    }
+
+    public double gettInf() {
+        return tInf;
+    }
+
+    public void settInf(double tInf) {
+        this.tInf = tInf;
+    }
+
+    public double getAlfa() {
+        return alfa;
+    }
+
+    public void setAlfa(double alfa) {
+        this.alfa = alfa;
+    }
+
+    public double getC() {
+        return c;
+    }
+
+    public void setC(double c) {
+        this.c = c;
+    }
+
+    public double getK() {
+        return k;
+    }
+
+    public void setK(double k) {
+        this.k = k;
+    }
+
+    public double getRo() {
+        return ro;
+    }
+
+    public void setRo(double ro) {
+        this.ro = ro;
+    }
+
+    public Matrix getHCurrent() {
+        return HCurrent;
+    }
+
+    public void setHCurrent(Matrix HCurrent) {
+        this.HCurrent = HCurrent;
+    }
+
+    public Matrix getHGlobal() {
+        return HGlobal;
+    }
+
+    public void setHGlobal(Matrix HGlobal) {
+        this.HGlobal = HGlobal;
+    }
+
+    public double[] getPcurrent() {
+        return Pcurrent;
+    }
+
+    public void setPcurrent(double[] pcurrent) {
+        Pcurrent = pcurrent;
+    }
+
+    public double[] getPglobal() {
+        return Pglobal;
+    }
+
+    public void setPglobal(double[] pglobal) {
+        Pglobal = pglobal;
+    }
+
+    public void setShapeFunctionsDerEta(Matrix shapeFunctionsDerEta) {
+        this.shapeFunctionsDerEta = shapeFunctionsDerEta;
+    }
+
+    public void setShapeFunctionsDerPsi(Matrix shapeFunctionsDerPsi) {
+        this.shapeFunctionsDerPsi = shapeFunctionsDerPsi;
     }
 
     public double getT0() {
