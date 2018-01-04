@@ -138,7 +138,10 @@ public class GlobalData {
     }
 
     public void compute(){
-        for(double x : pGlobal) x = 0.;
+        for(int i = 0; i < pGlobal.length; i++){
+            pGlobal[i] = 0.;
+        }
+        hGlobal = new Matrix(nh, nh);
 
         Jacobian jacobian;
         double[] dNdx = new double[4];
