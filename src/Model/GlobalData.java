@@ -8,6 +8,10 @@ import com.google.gson.Gson;
 
 import java.io.FileReader;
 
+/*
+* Numbers in comments are reference to document
+* http://home.agh.edu.pl/~pkustra/MES/FEM_transient_2d.pdf
+* */
 
 public class GlobalData {
     private double H;   //H is the height of field
@@ -33,7 +37,7 @@ public class GlobalData {
     private double[] pGlobal;
     private Matrix shapeFunctionsDerEta;
     private Matrix shapeFunctionsDerPsi;
-    private Matrix shapeFunctionsV;
+    private Matrix shapeFunctions;
     private Element localElement;
 
     private static GlobalData globalData;
@@ -99,12 +103,12 @@ public class GlobalData {
                 shapeFunctionsDerPsi.set(i,2, ShapeFunctions.shapeFunctionDerivative3Psi(points[i].getY()));
                 shapeFunctionsDerPsi.set(i,3, ShapeFunctions.shapeFunctionDerivative4Psi(points[i].getY()));
             }
-        shapeFunctionsV = new Matrix(4,4);
+        shapeFunctions = new Matrix(4,4);
             for(int i = 0; i < 4; i++){
-                shapeFunctionsV.set(i,0, ShapeFunctions.shapeFunction1(points[i].getX(), points[i].getY()));
-                shapeFunctionsV.set(i,1, ShapeFunctions.shapeFunction2(points[i].getX(), points[i].getY()));
-                shapeFunctionsV.set(i,2, ShapeFunctions.shapeFunction3(points[i].getX(), points[i].getY()));
-                shapeFunctionsV.set(i,3, ShapeFunctions.shapeFunction4(points[i].getX(), points[i].getY()));
+                shapeFunctions.set(i,0, ShapeFunctions.shapeFunction1(points[i].getX(), points[i].getY()));
+                shapeFunctions.set(i,1, ShapeFunctions.shapeFunction2(points[i].getX(), points[i].getY()));
+                shapeFunctions.set(i,2, ShapeFunctions.shapeFunction3(points[i].getX(), points[i].getY()));
+                shapeFunctions.set(i,3, ShapeFunctions.shapeFunction4(points[i].getX(), points[i].getY()));
             }
     }
 
@@ -138,9 +142,7 @@ public class GlobalData {
     }
 
     public void compute(){
-        for(int i = 0; i < pGlobal.length; i++){
-            pGlobal[i] = 0.;
-        }
+        for(int i = 0; i < pGlobal.length; i++) pGlobal[i] = 0.;
         hGlobal = new Matrix(nh, nh);
 
         Jacobian jacobian;
@@ -149,26 +151,25 @@ public class GlobalData {
         double[] coordsX = new double[4];
         double[] coordsY = new double[4];
         double[] initialTemps = new double[4];
-        double t0p = 0., cij;
+        double tempInterpolated = 0., cMatrixIJ; //tempInterpolated is for temperatures interpolated from nodes, cMatixIJ is cell from 'C' matrix (6.8)
         int id;
         double detJ = 0.;
 
         for(int elemIter = 0; elemIter < ne; elemIter++){  //iterating through all elements of grid
-            Element tempElement = (Element)(grid.getEL().get(elemIter));
+            Element currentElement = (Element)(grid.getEL().get(elemIter));
             hCurrent = new Matrix(4,4);
-            pCurrent = new double[4];
-            for(double pElem: pCurrent) pElem = 0.;
+            pCurrent = new double[]{0.,0.,0.,0.};
 
             for(int i = 0; i < 4; i++){
-                id = tempElement.getIDArray()[i];
-                coordsX[i] = ((Node)(grid.getND().get(id))).getX();
+                id = currentElement.getIDArray()[i];                               //universal id of node in current element
+                coordsX[i] = ((Node)(grid.getND().get(id))).getX();             //storing nodes coords
                 coordsY[i] = ((Node)(grid.getND().get(id))).getY();
-                initialTemps[i] = ((Node)(grid.getND().get(id))).getTemp();
+                initialTemps[i] = ((Node)(grid.getND().get(id))).getTemp();     //initial temps of nodes
             }
 
             for (int ipIter = 0; ipIter < 4; ipIter++){
                 jacobian = new Jacobian(ipIter, coordsX, coordsY, shapeFunctionsDerEta, shapeFunctionsDerPsi);
-                t0p = 0;
+                tempInterpolated = 0;
 
                 for(int i = 0; i < 4; i++){
                     dNdx[i] = jacobian.getFinalJacobian().get(0,0) * shapeFunctionsDerPsi.get(ipIter, i)
@@ -177,16 +178,20 @@ public class GlobalData {
                     dNdy[i] = jacobian.getFinalJacobian().get(1, 0) * shapeFunctionsDerPsi.get(ipIter, i)
                             + jacobian.getFinalJacobian().get(1, 1) * shapeFunctionsDerEta.get(ipIter, i);
 
-                    t0p += initialTemps[i] * this.shapeFunctionsV.get(ipIter, i);
+                    //interpolating temperatures from element nodes
+                    // t = N1*t1 * ... *N4*t4
+                    tempInterpolated += initialTemps[i] * this.shapeFunctions.get(ipIter, i);
                 }
 
                 detJ = Math.abs(jacobian.getDet());
+                //multiplying N by N^T
+                //6.8
                 for(int i = 0; i < 4; i++){
                     for(int j = 0; j < 4; j++){
-                        cij = c * ro * shapeFunctionsV.get(ipIter, i) * shapeFunctionsV.get(ipIter, j) * detJ;
-                        double tempVal = hCurrent.get(i, j) + k * (dNdx[i] * dNdx[j] + dNdy[i] * dNdy[j]) * detJ + cij / dTau;
+                        cMatrixIJ = c * ro * shapeFunctions.get(ipIter, i) * shapeFunctions.get(ipIter, j) * detJ;
+                        double tempVal = hCurrent.get(i, j) + k * (dNdx[i] * dNdx[j] + dNdy[i] * dNdy[j]) * detJ + cMatrixIJ / dTau;
                         hCurrent.set(i, j, tempVal);
-                        tempVal = pCurrent[i] + cij / dTau * t0p;
+                        tempVal = pCurrent[i] + cMatrixIJ / dTau * tempInterpolated;
                         pCurrent[i] = tempVal;
                     }
                 }
@@ -194,18 +199,19 @@ public class GlobalData {
 
             //boundary conditions
             //iterates through number of boundary condition edges
-            for(int surfIter = 0; surfIter < tempElement.getNodesOfBorders(); surfIter++) {
-                id = tempElement.getIDOfBordersSurfaces().get(surfIter);
-                Surface surface = tempElement.getSurfaceOfId(id);
+            for(int surfIter = 0; surfIter < currentElement.getNodesOfBorders(); surfIter++) {
+                id = currentElement.getIDOfBordersSurfaces().get(surfIter);     //id of border surface in elelemnt
+                Surface surface = currentElement.getSurfaceOfId(id);
 
                 detJ = Math.sqrt(Math.pow((surface.getSurf()[0].getX() - surface.getSurf()[1].getX()), 2)
                         + Math.pow((surface.getSurf()[0].getY() - surface.getSurf()[1].getY()), 2)) / 2.0;
 
-                for (int i = 0; i < 2; i++) {
+                for (int i = 0; i < 2; i++) {       //2 points of integration on surface
                     for (int j = 0; j < 4; j++) {
                         for (int k = 0; k < 4; k++) {
                             double tempVal = hCurrent.get(j, k);
-                            tempVal += alfa * localElement.getSurfaces()[id].getShapeFunctionVals()[i][j] * localElement.getSurfaces()[id].getShapeFunctionVals()[i][k] * detJ;
+                            tempVal += alfa * localElement.getSurfaces()[id].getShapeFunctionVals()[i][j]
+                                    * localElement.getSurfaces()[id].getShapeFunctionVals()[i][k] * detJ;
                             hCurrent.set(j, k, tempVal);
                         }
                         pCurrent[j] += alfa * tInf * localElement.getSurfaces()[id].getShapeFunctionVals()[i][j] * detJ;
@@ -215,12 +221,12 @@ public class GlobalData {
             //agregation
             for(int i = 0; i < 4; i++){
                 for(int j = 0; j < 4; j++){
-                    int first = tempElement.getIDArray()[i];
-                    int second = tempElement.getIDArray()[j];
+                    int first = currentElement.getIDArray()[i];
+                    int second = currentElement.getIDArray()[j];
                     double tempValue = hGlobal.get(first, second) + hCurrent.get(i,j);
                     hGlobal.set(first, second, tempValue);
                 }
-                pGlobal[tempElement.getIDArray()[i]] += pCurrent[i];
+                pGlobal[currentElement.getIDArray()[i]] += pCurrent[i];
             }
 
 
