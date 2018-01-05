@@ -149,15 +149,14 @@ public class GlobalData {
         double[] coordsX = new double[4];
         double[] coordsY = new double[4];
         double[] initialTemps = new double[4];
-        double t0p = 0., cij;
+        double initialTempInterpol = 0., cellIJ;
         int id;
         double detJ = 0.;
 
         for(int elemIter = 0; elemIter < ne; elemIter++){  //iterating through all elements of grid
             Element tempElement = (Element)(grid.getEL().get(elemIter));
             hCurrent = new Matrix(4,4);
-            pCurrent = new double[4];
-            for(double pElem: pCurrent) pElem = 0.;
+            pCurrent = new double[]{0.,0.,0.,0.};
 
             for(int i = 0; i < 4; i++){
                 id = tempElement.getIDArray()[i];
@@ -166,28 +165,27 @@ public class GlobalData {
                 initialTemps[i] = ((Node)(grid.getND().get(id))).getTemp();
             }
 
-            for (int ipIter = 0; ipIter < 4; ipIter++){
+            for (int ipIter = 0; ipIter < 4; ipIter++){ //iterating through intergration points
                 jacobian = new Jacobian(ipIter, coordsX, coordsY, shapeFunctionsDerEta, shapeFunctionsDerPsi);
-                t0p = 0;
+                initialTempInterpol = 0;
 
-                for(int i = 0; i < 4; i++){
+                for(int i = 0; i < 4; i++){     //calculating derratives of shape functions for global elements
                     dNdx[i] = jacobian.getFinalJacobian().get(0,0) * shapeFunctionsDerPsi.get(ipIter, i)
                             + jacobian.getFinalJacobian().get(0,1) * shapeFunctionsDerEta.get(ipIter, i);
 
                     dNdy[i] = jacobian.getFinalJacobian().get(1, 0) * shapeFunctionsDerPsi.get(ipIter, i)
                             + jacobian.getFinalJacobian().get(1, 1) * shapeFunctionsDerEta.get(ipIter, i);
 
-                    t0p += initialTemps[i] * this.shapeFunctionsV.get(ipIter, i);
+                    initialTempInterpol += initialTemps[i] * this.shapeFunctionsV.get(ipIter, i);
                 }
 
                 detJ = Math.abs(jacobian.getDet());
                 for(int i = 0; i < 4; i++){
                     for(int j = 0; j < 4; j++){
-                        cij = c * ro * shapeFunctionsV.get(ipIter, i) * shapeFunctionsV.get(ipIter, j) * detJ;
-                        double tempVal = hCurrent.get(i, j) + k * (dNdx[i] * dNdx[j] + dNdy[i] * dNdy[j]) * detJ + cij / dTau;
+                        cellIJ = c * ro * shapeFunctionsV.get(ipIter, i) * shapeFunctionsV.get(ipIter, j) * detJ;
+                        double tempVal = hCurrent.get(i, j) + k * (dNdx[i] * dNdx[j] + dNdy[i] * dNdy[j]) * detJ + cellIJ / dTau;
                         hCurrent.set(i, j, tempVal);
-                        tempVal = pCurrent[i] + cij / dTau * t0p;
-                        pCurrent[i] = tempVal;
+                        pCurrent[i] += cellIJ / dTau * initialTempInterpol;
                     }
                 }
             }
@@ -215,7 +213,7 @@ public class GlobalData {
             //agregation
             for(int i = 0; i < 4; i++){
                 for(int j = 0; j < 4; j++){
-                    int first = tempElement.getIDArray()[i];
+                    int first = tempElement.getIDArray()[i];    //determining location of element in global matrix
                     int second = tempElement.getIDArray()[j];
                     double tempValue = hGlobal.get(first, second) + hCurrent.get(i,j);
                     hGlobal.set(first, second, tempValue);

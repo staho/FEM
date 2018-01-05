@@ -2,8 +2,6 @@ package Model.Maths;
 
 public class Solver {
     public static double[] gaussElimination(int n, double[][] gk, double [] rk){
-        boolean r = false;
-
         double m, s, e;
         e = Math.pow(10, -12);
         double[] tabResult = new double[n];
@@ -42,7 +40,6 @@ public class Solver {
                 break;
             }
             tabResult[i] = s/tabAB[i][i];
-            r = true;
         }
         return tabResult;
     }

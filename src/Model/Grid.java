@@ -73,4 +73,28 @@ public class Grid {
     public List getEL() {
         return EL;
     }
+
+    public boolean setTemps(double [] temps){
+        if (temps.length == ND.size()){
+            for(int i = 0; i < globalData.getNh(); i++){
+                ND.get(i).setTemp(temps[i]);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public void printNodesTemps(){
+        int nodeIter = 0;
+        for(int i = 0; i < globalData.getnB(); i++){
+            for(int j = 0; j < globalData.getnH(); j++){
+                double temp = ND.get(nodeIter++).getTemp();
+                System.out.printf("%.15f\t", temp);
+
+            }
+            System.out.println("");
+        }
+        System.out.println("\n\n");
+
+    }
 }
