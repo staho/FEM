@@ -9,7 +9,8 @@ import java.io.FileReader;
 /*
 * Numbers in comments are reference to document
 * http://home.agh.edu.pl/~pkustra/MES/FEM_transient_2d.pdf
-* */
+*
+*/
 
 public class GlobalData {
     private double H;   //H is the height of field
@@ -186,7 +187,7 @@ public class GlobalData {
                 //6.8
                 for(int i = 0; i < 4; i++){
                     for(int j = 0; j < 4; j++){
-                        cMatrixIJ = c * ro * shapeFunctions.get(ipIter, i) * shapeFunctions.get(ipIter, j) * detJ;
+                        cMatrixIJ = currentElement.getC() * currentElement.getRo() * shapeFunctions.get(ipIter, i) * shapeFunctions.get(ipIter, j) * detJ;
                         double tempVal = hCurrent.get(i, j) + k * (dNdx[i] * dNdx[j] + dNdy[i] * dNdy[j]) * detJ + cMatrixIJ / dTau;
                         hCurrent.set(i, j, tempVal);
                         tempVal = pCurrent[i] + cMatrixIJ / dTau * tempInterpolated;

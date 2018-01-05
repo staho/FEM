@@ -30,7 +30,7 @@ public class Grid {
                 double x = i * dx;
                 double y = j * dy;
                 boolean status = false;
-                if(y == globalData.getH()){ //x == 0.0 || y == 0.0 || x == globalData.getB() ||
+                if(x == 0.0 || y == 0.0 || x == globalData.getB() || y == globalData.getH()){
                     status = true;
                     //System.out.println("x: " + x + " y: " + y + " status: " + Boolean.toString(status));
                 }
@@ -53,7 +53,15 @@ public class Grid {
                     nodes[z] = ND.get(nodeId);
                     z++;
                 }
-                EL.add(new Element(tab, nodes));
+
+                double [] alfas = new double[4];
+                for (int k = 0; k < 4; k++) alfas[k] = globalData.getAlfa();
+
+                Element tempElement = new Element(tab, nodes, alfas);
+                tempElement.setRo(globalData.getRo());
+                tempElement.setC(globalData.getC());
+
+                EL.add(tempElement);
             }
         }
     }
