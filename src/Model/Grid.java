@@ -30,7 +30,7 @@ public class Grid {
                 double x = i * dx;
                 double y = j * dy;
                 boolean status = false;
-                if(x == 0.0 || y == 0.0 || x == globalData.getB() || y == globalData.getH()){
+                if(y == globalData.getH()){ //x == 0.0 || y == 0.0 || x == globalData.getB() ||
                     status = true;
                     //System.out.println("x: " + x + " y: " + y + " status: " + Boolean.toString(status));
                 }
@@ -90,11 +90,9 @@ public class Grid {
             for(int j = 0; j < globalData.getnH(); j++){
                 double temp = ND.get(nodeIter++).getTemp();
                 System.out.printf("%.15f\t", temp);
-
             }
             System.out.println("");
         }
         System.out.println("\n\n");
-
     }
 }
