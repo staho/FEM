@@ -201,6 +201,7 @@ public class GlobalData {
             for(int surfIter = 0; surfIter < currentElement.getNodesOfBorders(); surfIter++) {
                 id = currentElement.getIDOfBordersSurfaces().get(surfIter);     //id of border surface in elelemnt
                 Surface surface = currentElement.getSurfaceOfId(id);
+                double currentAlfa = surface.getAlfa();
 
                 detJ = Math.sqrt(Math.pow((surface.getSurf()[0].getX() - surface.getSurf()[1].getX()), 2)
                         + Math.pow((surface.getSurf()[0].getY() - surface.getSurf()[1].getY()), 2)) / 2.0;
@@ -209,11 +210,11 @@ public class GlobalData {
                     for (int j = 0; j < 4; j++) {
                         for (int k = 0; k < 4; k++) {
                             double tempVal = hCurrent.get(j, k);
-                            tempVal += alfa * localElement.getSurfaces()[id].getShapeFunctionVals()[i][j]
+                            tempVal += currentAlfa * localElement.getSurfaces()[id].getShapeFunctionVals()[i][j]
                                     * localElement.getSurfaces()[id].getShapeFunctionVals()[i][k] * detJ;
                             hCurrent.set(j, k, tempVal);
                         }
-                        pCurrent[j] += alfa * tInf * localElement.getSurfaces()[id].getShapeFunctionVals()[i][j] * detJ;
+                        pCurrent[j] += currentAlfa * tInf * localElement.getSurfaces()[id].getShapeFunctionVals()[i][j] * detJ;
                     }
                 }
             }
