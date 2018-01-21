@@ -119,6 +119,18 @@ public class Grid {
         System.out.println("\n\n");
     }
 
+    public double[][] tempsAsArray(){
+        double temps [][] = new double[globalData.getnB()][globalData.getnB()];
+        int ii = 0;
+        for(int i = globalData.getnB() - 1; i >= 0; i--){
+            for(int j = 0; j < globalData.getnH(); j++){
+                temps[ii][j] = ND.get(j * globalData.getnH() + i).getTemp();
+            }
+            ii++;
+        }
+        return temps;
+    }
+
     private Material materialForX(double x){
         //return globalData.getMaterials().get(3);
 
