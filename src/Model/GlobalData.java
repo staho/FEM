@@ -6,6 +6,9 @@ import Model.Maths.Point;
 import com.google.gson.Gson;
 
 import java.io.FileReader;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 /*
 * Numbers in comments are reference to document
 * http://home.agh.edu.pl/~pkustra/MES/FEM_transient_2d.pdf
@@ -24,11 +27,13 @@ public class GlobalData {
     private double t0;      //starting temperature
     private double tau;     //time of process
     private double dTau;    //time differential between each step
-    private double tInf;    //temperature of infinitive
-    private double alfa;    //heat exchange ratio
-    private double c;       //specific heat
-    private double k;       //heat conduction ratio
-    private double ro;      //density
+    private double tInf;    //temperature of ambient
+    private double tInf_l;
+    private double tInf_r;
+    private double alfa;    //heat exchange ratio       [W / m2 * K]
+    private double c;       //specific heat             [J / kg * K]
+    private double k;       //heat conduction ratio     [W/ m * K]
+    private double ro;      //density                   [kg / m3]
 
     private Matrix hCurrent;
     private Matrix hGlobal;
@@ -38,6 +43,8 @@ public class GlobalData {
     private Matrix shapeFunctionsDerPsi;
     private Matrix shapeFunctions;
     private Element localElement;
+
+    private transient List<Material> materials;
 
     private static GlobalData globalData;
 
@@ -62,6 +69,8 @@ public class GlobalData {
             this.c = tempData.getC();
             this.k = tempData.getK();
             this.ro = tempData.getRo();
+            this.tInf_l = tempData.gettInf_l();
+            this.tInf_r = tempData.gettInf_r();
 
 
             this.setNh(this.getnH() * this.getnB());
@@ -78,6 +87,7 @@ public class GlobalData {
 
             generateDerMatrices();
             generateLocalElement();
+            generateMaterials();
 
             grid = new Grid(this);
             grid.generateGrid();
@@ -88,27 +98,42 @@ public class GlobalData {
         Point[] points = IntegralPoints.getIntegralPoints();
 
         shapeFunctionsDerEta = new Matrix(4, 4);
-            for(int i = 0; i < 4; i++){
+        shapeFunctionsDerPsi = new Matrix(4, 4);
+        shapeFunctions = new Matrix(4,4);
+
+        for(int i = 0; i < 4; i++){
                 shapeFunctionsDerEta.set(i,0, ShapeFunctions.shapeFunctionDerivative1Eta(points[i].getX()));
                 shapeFunctionsDerEta.set(i,1, ShapeFunctions.shapeFunctionDerivative2Eta(points[i].getX()));
                 shapeFunctionsDerEta.set(i,2, ShapeFunctions.shapeFunctionDerivative3Eta(points[i].getX()));
                 shapeFunctionsDerEta.set(i,3, ShapeFunctions.shapeFunctionDerivative4Eta(points[i].getX()));
             }
 
-        shapeFunctionsDerPsi = new Matrix(4, 4);
             for(int i = 0; i < 4; i++){
                 shapeFunctionsDerPsi.set(i,0, ShapeFunctions.shapeFunctionDerivative1Psi(points[i].getY()));
                 shapeFunctionsDerPsi.set(i,1, ShapeFunctions.shapeFunctionDerivative2Psi(points[i].getY()));
                 shapeFunctionsDerPsi.set(i,2, ShapeFunctions.shapeFunctionDerivative3Psi(points[i].getY()));
                 shapeFunctionsDerPsi.set(i,3, ShapeFunctions.shapeFunctionDerivative4Psi(points[i].getY()));
             }
-        shapeFunctions = new Matrix(4,4);
             for(int i = 0; i < 4; i++){
                 shapeFunctions.set(i,0, ShapeFunctions.shapeFunction1(points[i].getX(), points[i].getY()));
                 shapeFunctions.set(i,1, ShapeFunctions.shapeFunction2(points[i].getX(), points[i].getY()));
                 shapeFunctions.set(i,2, ShapeFunctions.shapeFunction3(points[i].getX(), points[i].getY()));
                 shapeFunctions.set(i,3, ShapeFunctions.shapeFunction4(points[i].getX(), points[i].getY()));
             }
+    }
+
+    private void generateMaterials(){
+        Material gypsium = new Material("Plaster board", 1090, 800, 0.17, 7);
+        Material mineralWool = new Material("Mineral wool", 840, 30, 0.034, 7);
+        Material woodPlank = new Material("Wood plank", 1225, 720, 0.16, 25);
+        Material steel = new Material("Steel", 700, 7800, 25, 300);
+
+        materials = new ArrayList<>(3);
+        materials.add(0, gypsium);
+        materials.add(1, mineralWool);
+        materials.add(2, woodPlank);
+        materials.add(3, steel);
+
     }
 
     private void generateLocalElement(){
@@ -156,6 +181,7 @@ public class GlobalData {
 
         for(int elemIter = 0; elemIter < ne; elemIter++){  //iterating through all elements of grid
             Element currentElement = (Element)(grid.getEL().get(elemIter));
+            Material currentMaterial = currentElement.getMaterial();
             hCurrent = new Matrix(4,4);
             pCurrent = new double[]{0.,0.,0.,0.};
 
@@ -183,11 +209,11 @@ public class GlobalData {
                 }
 
                 detJ = Math.abs(jacobian.getDet());
-                //multiplying N by N^T
+                //multiplying N by N^T 
                 //6.8
                 for(int i = 0; i < 4; i++){
                     for(int j = 0; j < 4; j++){
-                        cMatrixIJ = currentElement.getC() * currentElement.getRo() * shapeFunctions.get(ipIter, i) * shapeFunctions.get(ipIter, j) * detJ;
+                        cMatrixIJ = currentMaterial.getC() * currentMaterial.getRo() * shapeFunctions.get(ipIter, i) * shapeFunctions.get(ipIter, j) * detJ;
                         double tempVal = hCurrent.get(i, j) + k * (dNdx[i] * dNdx[j] + dNdy[i] * dNdy[j]) * detJ + cMatrixIJ / dTau;
                         hCurrent.set(i, j, tempVal);
                         tempVal = pCurrent[i] + cMatrixIJ / dTau * tempInterpolated;
@@ -214,7 +240,8 @@ public class GlobalData {
                                     * localElement.getSurfaces()[id].getShapeFunctionVals()[i][k] * detJ;
                             hCurrent.set(j, k, tempVal);
                         }
-                        pCurrent[j] += currentAlfa * tInf * localElement.getSurfaces()[id].getShapeFunctionVals()[i][j] * detJ;
+                        pCurrent[j] += currentAlfa * surface.gettInf() * localElement.getSurfaces()[id].getShapeFunctionVals()[i][j] * detJ;
+                        //System.out.println(surface.gettInf());
                     }
                 }
             }
@@ -424,5 +451,25 @@ public class GlobalData {
 
     private void setDx(double dx) {
         this.dx = dx;
+    }
+
+    public double gettInf_l() {
+        return tInf_l;
+    }
+
+    public void settInf_l(double tInf_l) {
+        this.tInf_l = tInf_l;
+    }
+
+    public double gettInf_r() {
+        return tInf_r;
+    }
+
+    public void settInf_r(double tInf_r) {
+        this.tInf_r = tInf_r;
+    }
+
+    public List<Material> getMaterials() {
+        return materials;
     }
 }

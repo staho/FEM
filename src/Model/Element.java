@@ -11,27 +11,29 @@ public class Element {
     private final int noOfIDs = 4;
     private int nodesOfBorders = 0;
     private List<Integer> IDOfBordersSurfaces = null;
-    private double [] alfas;
-    private double ro;
-    private double c;
+    private Material material;
+    private double tInf;
 
-    public Element(int[] IDArray, Node[] nodes, double[] alfas) {
+    public Element(int[] IDArray, Node[] nodes, Material material, double tInf) {
         this.IDArray = IDArray;
         this.nodes = nodes;
         IDOfBordersSurfaces = new LinkedList<>();
-        this.alfas = alfas;
+        this.material = material;
+        this.tInf = tInf;
 
         surfaces = new Surface[4];
-        surfaces[0] = new Surface(nodes[3], nodes[0], this.alfas[0]);
-        surfaces[1] = new Surface(nodes[0], nodes[1], this.alfas[1]);
-        surfaces[2] = new Surface(nodes[1], nodes[2], this.alfas[2]);
-        surfaces[3] = new Surface(nodes[2], nodes[3], this.alfas[3]);
+        surfaces[0] = new Surface(nodes[3], nodes[0], this.material.getAlfa(), this.tInf);
+        surfaces[1] = new Surface(nodes[0], nodes[1], this.material.getAlfa(), this.tInf);
+        surfaces[2] = new Surface(nodes[1], nodes[2], this.material.getAlfa(), this.tInf);
+        surfaces[3] = new Surface(nodes[2], nodes[3], this.material.getAlfa(), this.tInf);
 
         for(Surface surface: surfaces)  //checking if edge is on border
             if(surface.getSurf()[0].isStatus() && surface.getSurf()[1].isStatus()) nodesOfBorders++;
 
         for(int i = 0; i < 4; i++)
             if(surfaces[i].getSurf()[0].isStatus() && surfaces[i].getSurf()[1].isStatus()) IDOfBordersSurfaces.add(i);
+
+        System.out.println("x: " + this.nodes[1].getX() + " y: " + this.nodes[1].getX() + "material: " + this.material.getName() + " tinf: " + tInf);
     }
 
     public Element(int[] IDArray, Node[] nodes) {
@@ -85,27 +87,7 @@ public class Element {
         surfaces = surface;
     }
 
-    public double [] getAlfas() {
-        return alfas;
-    }
-
-    public void setAlfas(double [] alfas) {
-        this.alfas = alfas;
-    }
-
-    public double getRo() {
-        return ro;
-    }
-
-    public void setRo(double ro) {
-        this.ro = ro;
-    }
-
-    public double getC() {
-        return c;
-    }
-
-    public void setC(double c) {
-        this.c = c;
+    public Material getMaterial() {
+        return material;
     }
 }

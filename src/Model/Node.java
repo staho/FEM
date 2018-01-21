@@ -9,6 +9,7 @@ public class Node {
     private boolean status;
     private final int uid;
     private double temp;
+    private double tInf;
 
     public Node(double x, double y) {
         this.x = x;
@@ -22,6 +23,15 @@ public class Node {
         this.uid = uid;
         this.status = status;
         this.temp = initialTemp;
+    }
+
+    public Node(double x, double y, final int uid, boolean status, double initialTemp, double tInf) {
+        this.x = x;
+        this.y = y;
+        this.uid = uid;
+        this.status = status;
+        this.temp = initialTemp;
+        this.tInf = tInf;
     }
 
     public Node(Point point){
@@ -73,5 +83,13 @@ public class Node {
 
     public int getUid() {
         return uid;
+    }
+
+    public double gettInf() {
+        return tInf;
+    }
+
+    public void settInf(double tInf) {
+        this.tInf = tInf;
     }
 }
