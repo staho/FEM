@@ -123,9 +123,9 @@ public class GlobalData {
     }
 
     private void generateMaterials(){
-        Material gypsium = new Material("Plaster board", 1090, 800, 0.17, 7);
-        Material mineralWool = new Material("Mineral wool", 840, 30, 0.034, 7);
-        Material woodPlank = new Material("Wood plank", 1225, 720, 0.16, 25);
+        Material gypsium = new Material("Plaster board", 1090, 800, 0.17, 4.56);
+        Material mineralWool = new Material("Mineral wool", 840, 30, 0.034, 4.56);
+        Material woodPlank = new Material("Wood plank", 1225, 720, 0.16, 3.69);
         Material steel = new Material("Steel", 700, 7800, 25, 300);
 
         materials = new ArrayList<>(3);

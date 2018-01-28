@@ -26,13 +26,15 @@ public class Main {
                 long startTime = System.currentTimeMillis();
 
                 globalData.process();
+
+                long endProcessTime = System.currentTimeMillis();
                 t = Solver.gaussElimination(globalData.getNh(), globalData.gethGlobal().getArray(), globalData.getpGlobal());
                 globalData.getGrid().setTemps(t);
                 saveArray(csvPrinter, globalData.getGrid().tempsAsArray());
 
                 long endTime = System.currentTimeMillis();
 
-                System.out.println("That took " + (endTime - startTime) + " milliseconds");
+                System.out.println("Compute " + (endProcessTime - startTime) + ", Gauss: " + (endTime - endProcessTime));
 
             }
             csvPrinter.flush();
